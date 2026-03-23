@@ -1,0 +1,166 @@
+.boardWrapper {
+  position: relative;
+  display: inline-grid;
+  grid-template-areas:
+    ". colLabels"
+    "rowLabels board";
+  gap: 8px;
+  user-select: none;
+}
+
+.board {
+  grid-area: board;
+  position: relative;
+  width: 480px;
+  height: 480px;
+  background-color: #dcb06a;
+  border: 3px solid #8b5e2a;
+  border-radius: 4px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  padding: calc(480px / 16);
+  box-sizing: border-box;
+}
+
+/* Grid lines */
+.grid {
+  position: absolute;
+  inset: calc(480px / 16);
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  pointer-events: none;
+}
+
+.cell {
+  border-right: 1.5px solid #7a4f1e;
+  border-bottom: 1.5px solid #7a4f1e;
+}
+
+/* Star points */
+.starPoint {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #7a4f1e;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Intersection buttons */
+.intersection {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.intersection:disabled {
+  cursor: default;
+}
+
+.intersection:not(:disabled):hover .ghost {
+  opacity: 0.5;
+}
+
+/* Stones */
+.stone {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
+  transition: transform 0.1s ease;
+}
+
+.blueStone {
+  background: radial-gradient(circle at 35% 35%, #5ba3e0, #1a5fa8);
+  border: 1.5px solid #1044803d;
+}
+
+.orangeStone {
+  background: radial-gradient(circle at 35% 35%, #ffb45a, #d96a00);
+  border: 1.5px solid #7a320040;
+}
+
+.neutralStone {
+  background: radial-gradient(circle at 35% 35%, #b0b0b0, #555);
+  border: 1.5px solid #22222240;
+  cursor: default;
+}
+
+.lastMove::after {
+  content: '';
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.75);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Ghost stone on hover */
+.ghost {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.ghostBlue {
+  background: radial-gradient(circle at 35% 35%, #5ba3e0, #1a5fa8);
+}
+
+.ghostOrange {
+  background: radial-gradient(circle at 35% 35%, #ffb45a, #d96a00);
+}
+
+/* Labels */
+.colLabels {
+  grid-area: colLabels;
+  display: flex;
+  padding-left: calc(480px / 16);
+  padding-right: calc(480px / 16);
+}
+
+.colLabels span {
+  flex: 1;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a3a1a;
+  font-family: monospace;
+}
+
+.rowLabels {
+  grid-area: rowLabels;
+  display: flex;
+  flex-direction: column;
+  padding-top: calc(480px / 16);
+  padding-bottom: calc(480px / 16);
+}
+
+.rowLabels span {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5a3a1a;
+  font-family: monospace;
+  width: 24px;
+}
