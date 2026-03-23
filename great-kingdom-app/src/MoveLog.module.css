@@ -1,0 +1,73 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  width: 160px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  overflow: hidden;
+  align-self: stretch;
+}
+
+.header {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #666;
+  padding: 10px 14px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 6px 0;
+}
+
+.empty {
+  display: block;
+  font-size: 0.78rem;
+  color: #444;
+  text-align: center;
+  margin-top: 16px;
+}
+
+.entry {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 14px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+.entry:last-of-type {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.num {
+  color: #444;
+  font-variant-numeric: tabular-nums;
+  min-width: 18px;
+  font-size: 0.72rem;
+}
+
+.blue {
+  color: #7ec3f5;
+  font-weight: 700;
+  min-width: 42px;
+}
+
+.orange {
+  color: #ffcc77;
+  font-weight: 700;
+  min-width: 42px;
+}
+
+.coord {
+  color: #aaa;
+  font-family: monospace;
+  font-size: 0.85rem;
+}

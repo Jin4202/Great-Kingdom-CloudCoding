@@ -1,33 +1,77 @@
 import { useState } from 'react';
 import Board from './Board';
+import RulesOverlay from './RulesOverlay';
+import MoveLog from './MoveLog';
 import {
   createInitialState,
   placeStone,
   passTurn,
+  isSuicideMove,
   BLUE,
   ORANGE,
+  EMPTY,
+  BOARD_SIZE,
+  MAX_PIECES,
 } from './gameLogic';
 import './App.css';
 
 export default function App() {
   const [state, setState] = useState(createInitialState());
+  const [history, setHistory] = useState([]);
+  const [moveLog, setMoveLog] = useState([]);
+  const [showRules, setShowRules] = useState(false);
+
+  function colToLetter(col) {
+    return String.fromCharCode(65 + col);
+  }
 
   function handleCellClick(row, col) {
     if (state.gameOver) return;
     const next = placeStone(state, row, col);
-    if (next) setState(next);
+    if (next) {
+      setHistory((h) => [...h, state]);
+      setMoveLog((log) => [...log, {
+        player: state.turn,
+        type: 'place',
+        coord: `${colToLetter(col)}${BOARD_SIZE - row}`,
+      }]);
+      setState(next);
+    }
   }
 
   function handlePass() {
     if (state.gameOver) return;
+    setHistory((h) => [...h, state]);
+    setMoveLog((log) => [...log, { player: state.turn, type: 'pass' }]);
     setState(passTurn(state));
+  }
+
+  function handleUndo() {
+    if (history.length === 0) return;
+    const prev = history[history.length - 1];
+    setHistory((h) => h.slice(0, -1));
+    setMoveLog((log) => log.slice(0, -1));
+    setState(prev);
   }
 
   function handleReset() {
     setState(createInitialState());
+    setHistory([]);
+    setMoveLog([]);
   }
 
-  const { turn, gameOver, winner, winReason, blueTerritory, orangeTerritory } = state;
+  const { turn, gameOver, winner, winReason, blueTerritory, orangeTerritory, board, territory, bluePieces, orangePieces } = state;
+
+  // Precompute which empty cells are suicide for the current player
+  const suicideCells = Array.from({ length: BOARD_SIZE }, (_, r) =>
+    Array.from({ length: BOARD_SIZE }, (_, c) => {
+      if (gameOver) return false;
+      const opponent = turn === BLUE ? ORANGE : BLUE;
+      if (board[r][c] !== EMPTY) return false;
+      if (territory[r][c] === opponent) return false; // already blocked for a different reason
+      return isSuicideMove(board, r, c, turn);
+    })
+  );
   const turnLabel = turn === BLUE ? 'Blue' : 'Orange';
   const turnColor = turn === BLUE ? '#7ec3f5' : '#ffcc77';
 
@@ -61,7 +105,12 @@ export default function App() {
 
   return (
     <div className="app">
-      <h1 className="title">Great Kingdom</h1>
+      {showRules && <RulesOverlay onClose={() => setShowRules(false)} />}
+
+      <div className="title-row">
+        <h1 className="title">Great Kingdom</h1>
+        <button className="btn-rules" onClick={() => setShowRules(true)} aria-label="Show rules">?</button>
+      </div>
 
       <div className="territory-bar">
         <div className="territory-item blue-terr">
@@ -75,20 +124,41 @@ export default function App() {
         </div>
       </div>
 
+      <div className="pieces-bar">
+        <div className="pieces-item blue-pieces">
+          <span className="pieces-label">Blue</span>
+          <span className="pieces-remaining">{MAX_PIECES - bluePieces}</span>
+          <span className="pieces-unit">left</span>
+        </div>
+        <div className="pieces-divider">pieces</div>
+        <div className="pieces-item orange-pieces">
+          <span className="pieces-label">Orange</span>
+          <span className="pieces-remaining">{MAX_PIECES - orangePieces}</span>
+          <span className="pieces-unit">left</span>
+        </div>
+      </div>
+
       <div className="status-bar">{renderStatus()}</div>
 
-      <Board
-        board={state.board}
-        territory={state.territory}
-        turn={state.turn}
-        onCellClick={handleCellClick}
-        lastMove={state.lastMove}
-        gameOver={gameOver}
-      />
+      <div className="board-area">
+        <Board
+          board={state.board}
+          territory={state.territory}
+          turn={state.turn}
+          onCellClick={handleCellClick}
+          lastMove={state.lastMove}
+          gameOver={gameOver}
+          suicideCells={suicideCells}
+        />
+        <MoveLog entries={moveLog} />
+      </div>
 
       <div className="controls">
         <button className="btn btn-pass" onClick={handlePass} disabled={gameOver}>
           Pass
+        </button>
+        <button className="btn btn-undo" onClick={handleUndo} disabled={history.length === 0}>
+          Undo
         </button>
         <button className="btn btn-reset" onClick={handleReset}>
           New Game

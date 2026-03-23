@@ -5,6 +5,7 @@ export const NEUTRAL = 3;
 
 export const BOARD_SIZE = 9;
 export const CENTER = Math.floor(BOARD_SIZE / 2); // 4
+export const MAX_PIECES = 40;
 
 const DIRS = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
@@ -94,7 +95,7 @@ export function computeTerritory(board) {
       visited.add(key);
       let hasBlue = false;
       let hasOrange = false;
-      let touchesEdge = false;
+      const edgesTouched = new Set(); // 'top' | 'bottom' | 'left' | 'right'
 
       while (queue.length) {
         const [cr, cc] = queue.shift();
@@ -105,11 +106,18 @@ export function computeTerritory(board) {
           const nc = cc + dc;
           const nkey = `${nr},${nc}`;
 
-          if (!inBounds(nr, nc)) { touchesEdge = true; continue; } // board edge
+          if (!inBounds(nr, nc)) {
+            // Record which board edge was hit
+            if (nr < 0)              edgesTouched.add('top');
+            else if (nr >= BOARD_SIZE) edgesTouched.add('bottom');
+            else if (nc < 0)         edgesTouched.add('left');
+            else                     edgesTouched.add('right');
+            continue;
+          }
 
           const cell = board[nr][nc];
-          if (cell === BLUE) { hasBlue = true; continue; }
-          if (cell === ORANGE) { hasOrange = true; continue; }
+          if (cell === BLUE)    { hasBlue = true; continue; }
+          if (cell === ORANGE)  { hasOrange = true; continue; }
           if (cell === NEUTRAL) continue; // neutral = wall
 
           // EMPTY neighbor not yet visited
@@ -120,12 +128,16 @@ export function computeTerritory(board) {
         }
       }
 
-      // Assign ownership — region must be fully enclosed (no board-edge touch)
+      // Only a region touching all 4 board edges is considered open (the entire board).
+      // Regions touching 0–3 edges are valid territory candidates (interior, side, corner, or
+      // three-sided enclosures where pieces close off the remaining side).
+      // Additionally, at least one player's piece must border the region (pure edge enclosures
+      // with no pieces are not territory per §4-4).
       let owner = 0;
-      if (!touchesEdge && hasBlue && !hasOrange) {
+      if (edgesTouched.size <= 3 && hasBlue && !hasOrange) {
         owner = BLUE;
         blueCount += region.length;
-      } else if (!touchesEdge && hasOrange && !hasBlue) {
+      } else if (edgesTouched.size <= 3 && hasOrange && !hasBlue) {
         owner = ORANGE;
         orangeCount += region.length;
       }
@@ -137,6 +149,16 @@ export function computeTerritory(board) {
   }
 
   return { territory, blueCount, orangeCount };
+}
+
+// Returns true if placing `player` at (row, col) would be a suicide move.
+export function isSuicideMove(board, row, col, player) {
+  if (board[row][col] !== EMPTY) return false;
+  const tempBoard = board.map((r) => [...r]);
+  tempBoard[row][col] = player;
+  if (hasCapture(tempBoard, row, col, player)) return false; // capture takes priority
+  const ownGroup = getGroup(tempBoard, row, col);
+  return getLiberties(tempBoard, ownGroup) === 0;
 }
 
 // ── Public state helpers ──────────────────────────────────────────────────────
@@ -163,6 +185,8 @@ export function createInitialState() {
     lastMove: null,
     blueTerritory: blueCount,
     orangeTerritory: orangeCount,
+    bluePieces: 0,
+    orangePieces: 0,
   };
 }
 
@@ -171,12 +195,26 @@ export function placeStone(state, row, col) {
 
   if (board[row][col] !== EMPTY) return null;
 
+  // Rule: each player has at most MAX_PIECES pieces
+  const piecesPlaced = turn === BLUE ? state.bluePieces : state.orangePieces;
+  if (piecesPlaced >= MAX_PIECES) return null;
+
   // Rule: cannot place inside the opponent's confirmed territory
   const opponent = turn === BLUE ? ORANGE : BLUE;
   if (territory[row][col] === opponent) return null;
 
   const newBoard = board.map((r) => [...r]);
   newBoard[row][col] = turn;
+
+  // Rule: suicide is not allowed — cannot place if the resulting group has 0 liberties
+  // and no enemy group is captured by the move.
+  if (!hasCapture(newBoard, row, col, turn)) {
+    const ownGroup = getGroup(newBoard, row, col);
+    if (getLiberties(newBoard, ownGroup) === 0) return null;
+  }
+
+  const newBluePieces = turn === BLUE ? state.bluePieces + 1 : state.bluePieces;
+  const newOrangePieces = turn === ORANGE ? state.orangePieces + 1 : state.orangePieces;
 
   // Rule: if placement captures any enemy piece → instant win
   if (hasCapture(newBoard, row, col, turn)) {
@@ -193,6 +231,8 @@ export function placeStone(state, row, col) {
       winReason: 'capture',
       blueTerritory: blueCount,
       orangeTerritory: orangeCount,
+      bluePieces: newBluePieces,
+      orangePieces: newOrangePieces,
     };
   }
 
@@ -207,19 +247,24 @@ export function placeStone(state, row, col) {
     lastMove: { row, col },
     blueTerritory: blueCount,
     orangeTerritory: orangeCount,
+    bluePieces: newBluePieces,
+    orangePieces: newOrangePieces,
   };
 }
 
 export function passTurn(state) {
   const newPassCount = state.passCount + 1;
 
-  // Both players passed → end game, count territory
+  // Both players passed → end game, recompute territory and count
   if (newPassCount >= 2) {
-    const { blueTerritory, orangeTerritory } = state;
+    const { territory: finalTerritory, blueCount, orangeCount } = computeTerritory(state.board);
     // Blue (first player) wins only if territory >= orange + 3 (komi)
-    const winner = blueTerritory >= orangeTerritory + 3 ? BLUE : ORANGE;
+    const winner = blueCount >= orangeCount + 3 ? BLUE : ORANGE;
     return {
       ...state,
+      territory: finalTerritory,
+      blueTerritory: blueCount,
+      orangeTerritory: orangeCount,
       passCount: newPassCount,
       gameOver: true,
       winner,

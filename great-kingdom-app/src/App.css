@@ -8,14 +8,43 @@
   font-family: system-ui, sans-serif;
 }
 
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
 .title {
   font-size: 2.2rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #e8e0d0;
-  margin: 0 0 20px;
+  margin: 0;
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.btn-rules {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #aaa;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-rules:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #e8e0d0;
 }
 
 .territory-bar {
@@ -63,6 +92,60 @@
   letter-spacing: 0.08em;
 }
 
+.pieces-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 8px 24px;
+}
+
+.pieces-item {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.pieces-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+.blue-pieces .pieces-label  { color: #7ec3f5; }
+.orange-pieces .pieces-label { color: #ffcc77; }
+
+.pieces-remaining {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.blue-pieces .pieces-remaining  { color: #7ec3f5; }
+.orange-pieces .pieces-remaining { color: #ffcc77; }
+
+.pieces-unit {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.45;
+  color: #aaa;
+}
+
+.pieces-divider {
+  font-size: 0.7rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
 .status-bar {
   height: 36px;
   display: flex;
@@ -83,6 +166,12 @@
 
 .status.game-over {
   color: #aaa;
+}
+
+.board-area {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .controls {
@@ -121,6 +210,23 @@
   background: #333344;
   color: #666;
   border-color: #444455;
+  cursor: not-allowed;
+}
+
+.btn-undo {
+  background: #3a3a50;
+  color: #bbb;
+  border: 1.5px solid #555570;
+}
+
+.btn-undo:hover:not(:disabled) {
+  background: #4a4a65;
+}
+
+.btn-undo:disabled {
+  background: #2a2a3a;
+  color: #555;
+  border-color: #3a3a4a;
   cursor: not-allowed;
 }
 

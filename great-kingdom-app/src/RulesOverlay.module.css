@@ -1,0 +1,153 @@
+/* ── Backdrop ── */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+/* ── Modal ── */
+.modal {
+  background: #252535;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #e8e0d0;
+  margin: 0;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  line-height: 1;
+}
+
+.closeBtn:hover {
+  color: #e8e0d0;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Scrollable body ── */
+.body {
+  overflow-y: auto;
+  padding: 20px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ── Sections ── */
+.section {}
+
+.sectionTitle {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #888;
+  margin: 0 0 8px;
+}
+
+.list {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.list li {
+  font-size: 0.88rem;
+  color: #c8c0b8;
+  line-height: 1.5;
+}
+
+.list strong {
+  color: #e8e0d0;
+  font-weight: 700;
+}
+
+.list em {
+  color: #aaa;
+  font-style: normal;
+}
+
+/* ── Inline tags ── */
+.tagBlocked {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(200, 200, 200, 0.15);
+  color: #aaa;
+  margin-right: 2px;
+}
+
+.tagSuicide {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: rgba(232, 100, 100, 0.2);
+  color: #e88888;
+  margin-right: 2px;
+}
+
+/* ── Comparison table ── */
+.table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tableRow {
+  display: flex;
+  gap: 12px;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.tableKey {
+  color: #e8e0d0;
+  font-weight: 700;
+  min-width: 180px;
+  flex-shrink: 0;
+}
+
+.tableVal {
+  color: #888;
+}

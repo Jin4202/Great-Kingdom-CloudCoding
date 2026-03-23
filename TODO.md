@@ -2,13 +2,13 @@
 
 ## 🐛 Game Logic Bugs
 
-- [ ] **Edge territory is excluded** — `touchesEdge` fix prevents any territory touching the board edge from counting. This breaks the "2 pieces on the edge suffice for an eye" rule (§4-5). Need a smarter fix: require at least one piece on the boundary **and** the region must have no escape to open space (i.e., `hasBlue || hasOrange` must be true, which the original code already does). The real fix for "open board ≠ territory" is `hasBlue || hasOrange` as the guard — not the edge check.
+- [x] **Edge territory is excluded** — Removed `touchesEdge` guard. Board edges now act as walls (like neutral pieces), and territory is awarded solely when `hasBlue && !hasOrange` or vice-versa. Open regions that touch the edge but have no surrounding pieces remain untouched.
 
-- [ ] **Piece count limit not enforced** — Each player has 40 pieces. Nothing prevents placing more than 40.
+- [x] **Piece count limit not enforced** — Added `bluePieces` / `orangePieces` counters to state; `placeStone` returns `null` when a player has already placed `MAX_PIECES` (40).
 
-- [ ] **Territory not recomputed after `passTurn`** — If both players pass, `state.blueTerritory / orangeTerritory` reflect values from the last stone placement. Fine in most cases, but the counts should be recomputed at game end to be safe.
+- [x] **Territory not recomputed after `passTurn`** — `passTurn` now calls `computeTerritory` on the current board before determining the winner when both players pass.
 
-- [ ] **Suicide moves not considered** — Rules only restrict placing in opponent's territory (§4-2). No explicit rule on suicide. Verify the physical game's intent and decide: allow, forbid, or warn.
+- [x] **Suicide moves not considered** — Decision: **not allowed**. `placeStone` checks if the placed group has 0 liberties after placement; if so and no enemy capture occurred, the move is rejected (`null`).
 
 ---
 
@@ -24,17 +24,13 @@
 
 ## 🎮 Missing Features
 
-- [ ] **Piece counter HUD** — Show remaining pieces per player (40 − placed).
+- [x] **Piece counter HUD** — `bluePieces` / `orangePieces` from state displayed in a `pieces-bar` above the status line; counts down from 40 as pieces are placed.
 
-- [ ] **Undo / take-back** — Essential for casual play. Store move history as an array of states.
+- [x] **Undo / take-back** — `history` stack in `App`; every successful move pushes the previous state; Undo button pops it. Disabled when stack is empty. Reset clears the stack.
 
-- [ ] **Move history log** — List of moves (e.g., "Blue → E5", "Orange → Pass") in a side panel.
+- [x] **Move history log** — `MoveLog` component in a side panel next to the board. Entries record player, move type (place/pass), and coordinate (e.g. `E5`). Auto-scrolls to latest. Undo removes the last entry in sync.
 
-- [ ] **Score breakdown on game end** — Show territory map, final counts, and effective score (Blue: X, Orange: Y, komi: −3, result: Z) instead of just the win banner.
-
-- [ ] **AI opponent** — Even a random-move bot would allow solo testing. A greedy/heuristic bot would make it playable.
-
-- [ ] **Tutorial / rules overlay** — In-game rule summary or step-by-step tutorial for new players.
+- [x] **Tutorial / rules overlay** — `RulesOverlay` modal opened by `?` button next to the title. Covers goal, placement restrictions (including suicide indicator), territory rules, alive groups, and key differences from Go. Closes on backdrop click or `✕`.
 
 ---
 
@@ -42,7 +38,7 @@
 
 - [ ] **Mobile / responsive layout** — Board is hardcoded at `52px × 9 = 468px`. Needs fluid sizing (`min(52px, calc(100vw / 10))`) to fit smaller screens.
 
-- [ ] **Clearer no-entry visual** — Blocked cells and territory cells use the same tint. Add a distinct pattern (e.g., `×` icon, striped overlay, or darker tint) to make "you can't play here" more obvious.
+- [x] **Clearer no-entry visual** — Opponent territory cells use a distinct tint (`.blocked`). Suicide cells show a red tint with a `×` marker (`.suicide`), clearly distinct from territory blocks.
 
 - [ ] **Piece placement animation** — A short scale-in animation on stone placement would improve feel.
 

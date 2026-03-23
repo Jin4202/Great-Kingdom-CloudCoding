@@ -87,6 +87,22 @@
   opacity: 0.75;
 }
 
+/* Suicide cell — red tint with × marker */
+.suicide {
+  cursor: not-allowed;
+  background: #e8b8b8;
+}
+
+.suicide::before {
+  content: '×';
+  position: absolute;
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(180, 30, 30, 0.7);
+  pointer-events: none;
+  line-height: 1;
+}
+
 /* Ghost piece on hover */
 .hoverBlue:hover {
   background: #a8c0d8;
