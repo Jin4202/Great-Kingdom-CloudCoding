@@ -172,6 +172,8 @@
   display: flex;
   align-items: flex-start;
   gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .controls {
@@ -237,6 +239,63 @@
 
 .btn-reset:hover {
   background: #fff;
+}
+
+.pass-confirm {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: rgba(255, 200, 80, 0.08);
+  border: 1px solid rgba(255, 200, 80, 0.2);
+  border-radius: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pass-confirm-msg {
+  font-size: 0.82rem;
+  color: #c8a855;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.btn-pass-yes {
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  background: #c8a855;
+  color: #1e1e2e;
+  transition: background 0.15s;
+}
+
+.btn-pass-yes:hover {
+  background: #e0c070;
+}
+
+.btn-pass-cancel {
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  color: #666;
+  border: 1.5px solid #444;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btn-pass-cancel:hover {
+  border-color: #888;
+  color: #aaa;
 }
 
 .legend {

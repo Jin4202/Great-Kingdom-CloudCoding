@@ -66,6 +66,7 @@ export default function Board({ board, territory, turn, onCellClick, lastMove, g
                         cell === ORANGE ? styles.orangePiece : '',
                         cell === NEUTRAL ? styles.neutralPiece : '',
                         isLast ? styles.lastMove : '',
+                        isLast ? styles.pieceNew : '',
                       ].join(' ')}
                     />
                   )}

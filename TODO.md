@@ -36,15 +36,15 @@
 
 ## 🖥️ UI / UX
 
-- [ ] **Mobile / responsive layout** — Board is hardcoded at `52px × 9 = 468px`. Needs fluid sizing (`min(52px, calc(100vw / 10))`) to fit smaller screens.
+- [x] **Mobile / responsive layout** — Cell size is now `min(52px, calc((100vw - 96px) / 10))` via a `--cell` CSS custom property on `.wrapper`. Piece, ghost, dot, and `×` sizes all scale with `--cell`. `board-area` wraps so the move log stacks below the board on small screens.
 
 - [x] **Clearer no-entry visual** — Opponent territory cells use a distinct tint (`.blocked`). Suicide cells show a red tint with a `×` marker (`.suicide`), clearly distinct from territory blocks.
 
-- [ ] **Piece placement animation** — A short scale-in animation on stone placement would improve feel.
+- [x] **Piece placement animation** — `@keyframes pieceEnter` scales piece from 0.25→1 in 140 ms. Applied via `.pieceNew` on the last-placed piece (`isLast`).
 
-- [ ] **Pass warning** — If a player passes when they have good moves available, show a confirmation ("Are you sure you want to pass?").
+- [x] **Pass warning** — `handlePass` checks `hasAvailableMoves()` before passing. If moves exist, sets `confirmingPass` state and renders an inline confirmation banner ("Yes, Pass" / "Cancel"). Clears on any board click or cancel.
 
-- [ ] **Win overlay** — Replace the status bar text with a centered modal/overlay for game-over state.
+- [x] **Win overlay** — `WinOverlay` modal appears automatically on game end (capture or territory). Shows winner, reason, territory scores (for territory wins), and "New Game" / "Review Board" buttons.
 
 ---
 

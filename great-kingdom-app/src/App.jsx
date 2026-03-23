@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Board from './Board';
 import RulesOverlay from './RulesOverlay';
+import WinOverlay from './WinOverlay';
 import MoveLog from './MoveLog';
 import {
   createInitialState,
@@ -20,6 +21,8 @@ export default function App() {
   const [history, setHistory] = useState([]);
   const [moveLog, setMoveLog] = useState([]);
   const [showRules, setShowRules] = useState(false);
+  const [confirmingPass, setConfirmingPass] = useState(false);
+  const [showWin, setShowWin] = useState(false);
 
   function colToLetter(col) {
     return String.fromCharCode(65 + col);
@@ -27,6 +30,7 @@ export default function App() {
 
   function handleCellClick(row, col) {
     if (state.gameOver) return;
+    setConfirmingPass(false);
     const next = placeStone(state, row, col);
     if (next) {
       setHistory((h) => [...h, state]);
@@ -36,14 +40,39 @@ export default function App() {
         coord: `${colToLetter(col)}${BOARD_SIZE - row}`,
       }]);
       setState(next);
+      if (next.gameOver) setShowWin(true);
     }
+  }
+
+  function hasAvailableMoves() {
+    const opponent = turn === BLUE ? ORANGE : BLUE;
+    for (let r = 0; r < BOARD_SIZE; r++) {
+      for (let c = 0; c < BOARD_SIZE; c++) {
+        if (board[r][c] !== EMPTY) continue;
+        if (territory[r][c] === opponent) continue;
+        if (isSuicideMove(board, r, c, turn)) continue;
+        return true;
+      }
+    }
+    return false;
+  }
+
+  function commitPass() {
+    setConfirmingPass(false);
+    setHistory((h) => [...h, state]);
+    setMoveLog((log) => [...log, { player: state.turn, type: 'pass' }]);
+    const next = passTurn(state);
+    setState(next);
+    if (next.gameOver) setShowWin(true);
   }
 
   function handlePass() {
     if (state.gameOver) return;
-    setHistory((h) => [...h, state]);
-    setMoveLog((log) => [...log, { player: state.turn, type: 'pass' }]);
-    setState(passTurn(state));
+    if (hasAvailableMoves()) {
+      setConfirmingPass(true);
+    } else {
+      commitPass();
+    }
   }
 
   function handleUndo() {
@@ -58,6 +87,8 @@ export default function App() {
     setState(createInitialState());
     setHistory([]);
     setMoveLog([]);
+    setConfirmingPass(false);
+    setShowWin(false);
   }
 
   const { turn, gameOver, winner, winReason, blueTerritory, orangeTerritory, board, territory, bluePieces, orangePieces } = state;
@@ -106,6 +137,16 @@ export default function App() {
   return (
     <div className="app">
       {showRules && <RulesOverlay onClose={() => setShowRules(false)} />}
+      {showWin && (
+        <WinOverlay
+          winner={state.winner}
+          winReason={state.winReason}
+          blueTerritory={state.blueTerritory}
+          orangeTerritory={state.orangeTerritory}
+          onNewGame={handleReset}
+          onReview={() => setShowWin(false)}
+        />
+      )}
 
       <div className="title-row">
         <h1 className="title">Great Kingdom</h1>
@@ -164,6 +205,14 @@ export default function App() {
           New Game
         </button>
       </div>
+
+      {confirmingPass && (
+        <div className="pass-confirm">
+          <span className="pass-confirm-msg">You still have moves. Pass anyway?</span>
+          <button className="btn btn-pass-yes" onClick={commitPass}>Yes, Pass</button>
+          <button className="btn btn-pass-cancel" onClick={() => setConfirmingPass(false)}>Cancel</button>
+        </div>
+      )}
 
       <div className="legend">
         <div className="legend-item">

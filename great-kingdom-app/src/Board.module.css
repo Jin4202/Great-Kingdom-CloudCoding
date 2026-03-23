@@ -1,5 +1,7 @@
 /* ── Layout wrapper ── */
 .wrapper {
+  --cell: min(52px, calc((100vw - 96px) / 10));
+  --label-w: max(20px, calc(var(--cell) * 0.54));
   display: flex;
   flex-direction: column;
   user-select: none;
@@ -7,7 +9,7 @@
 
 .colLabels {
   display: flex;
-  padding-left: 28px;
+  padding-left: var(--label-w);
 }
 
 .boardRow {
@@ -17,11 +19,11 @@
 .rowLabels {
   display: flex;
   flex-direction: column;
-  width: 28px;
+  width: var(--label-w);
 }
 
 .corner {
-  width: 28px;
+  width: var(--label-w);
   flex-shrink: 0;
 }
 
@@ -30,7 +32,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: clamp(9px, calc(var(--cell) * 0.23), 12px);
   font-weight: 600;
   color: #888;
   font-family: monospace;
@@ -41,8 +43,8 @@
 /* ── Board ── */
 .board {
   display: grid;
-  grid-template-columns: repeat(9, 52px);
-  grid-template-rows: repeat(9, 52px);
+  grid-template-columns: repeat(9, var(--cell));
+  grid-template-rows: repeat(9, var(--cell));
   background: #888;
   border: 3px solid #666;
   border-radius: 4px;
@@ -96,7 +98,7 @@
 .suicide::before {
   content: '×';
   position: absolute;
-  font-size: 20px;
+  font-size: calc(var(--cell) * 0.38);
   font-weight: 700;
   color: rgba(180, 30, 30, 0.7);
   pointer-events: none;
@@ -116,8 +118,8 @@
 .hoverOrange:hover::after {
   content: '';
   position: absolute;
-  width: 36px;
-  height: 36px;
+  width: calc(var(--cell) * 0.69);
+  height: calc(var(--cell) * 0.69);
   border-radius: 50%;
   opacity: 0.35;
   pointer-events: none;
@@ -131,10 +133,20 @@
   background: radial-gradient(circle at 35% 35%, #ffcc88, #d96a00);
 }
 
+/* ── Piece entrance animation ── */
+@keyframes pieceEnter {
+  from { transform: scale(0.25); opacity: 0.6; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+.pieceNew {
+  animation: pieceEnter 0.14s ease-out;
+}
+
 /* ── Pieces ── */
 .piece {
-  width: 38px;
-  height: 38px;
+  width: calc(var(--cell) * 0.73);
+  height: calc(var(--cell) * 0.73);
   border-radius: 50%;
   box-shadow:
     2px 3px 6px rgba(0, 0, 0, 0.45),
@@ -163,8 +175,8 @@
 .lastMove::after {
   content: '';
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: calc(var(--cell) * 0.19);
+  height: calc(var(--cell) * 0.19);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.8);
   top: 50%;
