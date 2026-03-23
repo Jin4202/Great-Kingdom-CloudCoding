@@ -1,0 +1,132 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal {
+  background: #252535;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 20px;
+  padding: 40px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.7);
+  min-width: 280px;
+}
+
+.crown {
+  font-size: 2.8rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.winner {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.reason {
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #666;
+  margin: 0;
+}
+
+.scores {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.scoreRow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.scoreBlue {
+  font-size: 2rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #7ec3f5;
+}
+
+.scoreOrange {
+  font-size: 2rem;
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: #ffcc77;
+}
+
+.scoreDivider {
+  font-size: 0.85rem;
+  color: #555;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.komi {
+  font-size: 0.72rem;
+  color: #555;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btnNew {
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  background: #e8e0d0;
+  color: #1e1e2e;
+  transition: background 0.15s;
+}
+
+.btnNew:hover {
+  background: #fff;
+}
+
+.btnReview {
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: #3a3a50;
+  color: #bbb;
+  border: 1.5px solid #555570;
+  transition: background 0.15s;
+}
+
+.btnReview:hover {
+  background: #4a4a65;
+}

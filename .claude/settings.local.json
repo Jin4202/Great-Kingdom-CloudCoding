@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm create:*)",
+      "Bash(npm install:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "input=$(cat); cmd=$(echo \"$input\" | jq -r '.tool_input.command // \"\"'); if echo \"$cmd\" | grep -q 'git commit'; then (cd /Users/jinseokheo/Documents/AppProject/GreatKingdom/great-kingdom-app && npm test 2>&1); result=$?; if [ $result -ne 0 ]; then echo '{\"continue\":false,\"stopReason\":\"Tests failed. Fix failing tests before committing.\"}'; fi; fi",
+            "statusMessage": "Running tests before commit..."
+          }
+        ]
+      }
+    ]
+  }
+}
