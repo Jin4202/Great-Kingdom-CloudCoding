@@ -50,13 +50,15 @@
 
 ## 🧪 Testing
 
-- [ ] **Unit tests for `gameLogic.js`** — Critical cases to cover:
-  - Capture detection (win by capture)
-  - Territory calculation: interior only, edge groups, neutral-castle-bounded
-  - No-entry enforcement
-  - Both-pass → territory win with komi
-  - Piece count limits
-  - Capture of multi-piece groups
+- [x] **Unit tests for `gameLogic.js`** — 26 tests across 6 suites using Vitest:
+  - `createInitialState` — neutral castle, starting turn, zero territory
+  - `placeStone` — basic placement, occupied/neutral cell rejection, piece counters, passCount reset
+  - Piece count limit — placement rejected after 40 pieces placed
+  - No-entry — null returned when placing in opponent's confirmed territory
+  - Suicide — single piece, isSuicideMove helper, capture-overrides-suicide
+  - Capture win — single piece, multi-piece group
+  - `computeTerritory` — interior pocket, corner (2 edges), contested region, all-4-edges open board, neutral-as-wall, neutral cell ownership
+  - `passTurn` — passCount, turn switch, double-pass game end, komi (Orange wins on tie, Blue wins with lead), stale territory recompute
 
 ---
 
