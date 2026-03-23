@@ -1,166 +1,158 @@
-.boardWrapper {
-  position: relative;
-  display: inline-grid;
-  grid-template-areas:
-    ". colLabels"
-    "rowLabels board";
-  gap: 8px;
+/* ── Layout wrapper ── */
+.wrapper {
+  display: flex;
+  flex-direction: column;
   user-select: none;
 }
 
-.board {
-  grid-area: board;
-  position: relative;
-  width: 480px;
-  height: 480px;
-  background-color: #dcb06a;
-  border: 3px solid #8b5e2a;
-  border-radius: 4px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-  padding: calc(480px / 16);
-  box-sizing: border-box;
+.colLabels {
+  display: flex;
+  padding-left: 28px;
 }
 
-/* Grid lines */
-.grid {
-  position: absolute;
-  inset: calc(480px / 16);
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
-  pointer-events: none;
+.boardRow {
+  display: flex;
 }
 
-.cell {
-  border-right: 1.5px solid #7a4f1e;
-  border-bottom: 1.5px solid #7a4f1e;
+.rowLabels {
+  display: flex;
+  flex-direction: column;
+  width: 28px;
 }
 
-/* Star points */
-.starPoint {
-  position: absolute;
-  width: 8px;
-  height: 8px;
-  background: #7a4f1e;
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 1;
+.corner {
+  width: 28px;
+  flex-shrink: 0;
 }
 
-/* Intersection buttons */
-.intersection {
-  position: absolute;
-  width: 36px;
-  height: 36px;
-  transform: translate(-50%, -50%);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  border-radius: 50%;
-  z-index: 2;
+.label {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  font-family: monospace;
+  min-width: 0;
+  min-height: 0;
 }
 
-.intersection:disabled {
+/* ── Board ── */
+.board {
+  display: grid;
+  grid-template-columns: repeat(9, 52px);
+  grid-template-rows: repeat(9, 52px);
+  background: #888;
+  border: 3px solid #666;
+  border-radius: 4px;
+  gap: 1px;
+  padding: 1px;
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 3px rgba(255, 255, 255, 0.15);
+}
+
+/* ── Cells ── */
+.cell {
+  background: #d0d0d0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: default;
+  position: relative;
+  transition: background 0.1s;
 }
 
-.intersection:not(:disabled):hover .ghost {
-  opacity: 0.5;
+.empty {
+  cursor: pointer;
 }
 
-/* Stones */
-.stone {
-  width: 30px;
-  height: 30px;
+/* Territory tints — subtle wash of player colour */
+.blueTerritory {
+  background: #b8cfe0;
+}
+
+.orangeTerritory {
+  background: #e0c8b0;
+}
+
+/* Opponent territory = blocked, slightly dimmed */
+.blocked {
+  cursor: not-allowed;
+  background: inherit;
+  opacity: 0.75;
+}
+
+/* Ghost piece on hover */
+.hoverBlue:hover {
+  background: #a8c0d8;
+}
+
+.hoverOrange:hover {
+  background: #d8b898;
+}
+
+.hoverBlue:hover::after,
+.hoverOrange:hover::after {
+  content: '';
+  position: absolute;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  box-shadow: 1px 2px 4px rgba(0, 0, 0, 0.5);
-  transition: transform 0.1s ease;
+  opacity: 0.35;
+  pointer-events: none;
 }
 
-.blueStone {
-  background: radial-gradient(circle at 35% 35%, #5ba3e0, #1a5fa8);
-  border: 1.5px solid #1044803d;
+.hoverBlue:hover::after {
+  background: radial-gradient(circle at 35% 35%, #7bbff0, #1a5fa8);
 }
 
-.orangeStone {
-  background: radial-gradient(circle at 35% 35%, #ffb45a, #d96a00);
-  border: 1.5px solid #7a320040;
+.hoverOrange:hover::after {
+  background: radial-gradient(circle at 35% 35%, #ffcc88, #d96a00);
 }
 
-.neutralStone {
-  background: radial-gradient(circle at 35% 35%, #b0b0b0, #555);
-  border: 1.5px solid #22222240;
-  cursor: default;
+/* ── Pieces ── */
+.piece {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  box-shadow:
+    2px 3px 6px rgba(0, 0, 0, 0.45),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  position: relative;
+  flex-shrink: 0;
 }
 
+.bluePiece {
+  background: radial-gradient(circle at 35% 30%, #7ec3f5, #1a5fa8 70%);
+  border: 1.5px solid rgba(10, 50, 120, 0.3);
+}
+
+.orangePiece {
+  background: radial-gradient(circle at 35% 30%, #ffcc77, #d96a00 70%);
+  border: 1.5px solid rgba(120, 40, 0, 0.3);
+}
+
+.neutralPiece {
+  background: radial-gradient(circle at 35% 30%, #e8e8e8, #888 70%);
+  border: 1.5px solid rgba(0, 0, 0, 0.2);
+  cursor: not-allowed;
+}
+
+/* White dot on last placed piece */
 .lastMove::after {
   content: '';
   position: absolute;
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.75);
+  background: rgba(255, 255, 255, 0.8);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-/* Ghost stone on hover */
-.ghost {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  opacity: 0;
-  transition: opacity 0.15s ease;
   pointer-events: none;
-}
-
-.ghostBlue {
-  background: radial-gradient(circle at 35% 35%, #5ba3e0, #1a5fa8);
-}
-
-.ghostOrange {
-  background: radial-gradient(circle at 35% 35%, #ffb45a, #d96a00);
-}
-
-/* Labels */
-.colLabels {
-  grid-area: colLabels;
-  display: flex;
-  padding-left: calc(480px / 16);
-  padding-right: calc(480px / 16);
-}
-
-.colLabels span {
-  flex: 1;
-  text-align: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #5a3a1a;
-  font-family: monospace;
-}
-
-.rowLabels {
-  grid-area: rowLabels;
-  display: flex;
-  flex-direction: column;
-  padding-top: calc(480px / 16);
-  padding-bottom: calc(480px / 16);
-}
-
-.rowLabels span {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: #5a3a1a;
-  font-family: monospace;
-  width: 24px;
 }

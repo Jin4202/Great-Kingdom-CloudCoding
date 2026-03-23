@@ -4,32 +4,85 @@
   align-items: center;
   padding: 32px 20px 48px;
   min-height: 100svh;
-  background: #f5efe0;
+  background: #1e1e2e;
   font-family: system-ui, sans-serif;
 }
 
 .title {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e8e0d0;
+  margin: 0 0 20px;
+  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+}
+
+.territory-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 10px 24px;
+}
+
+.territory-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terr-label {
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: -0.04em;
-  color: #3b1f08;
-  margin: 0 0 16px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.blue-terr .terr-label { color: #7ec3f5; }
+.orange-terr .terr-label { color: #ffcc77; }
+
+.terr-count {
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+.blue-terr .terr-count { color: #7ec3f5; }
+.orange-terr .terr-count { color: #ffcc77; }
+
+.territory-divider {
+  font-size: 0.7rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .status-bar {
-  height: 32px;
+  height: 36px;
   display: flex;
   align-items: center;
   margin-bottom: 20px;
 }
 
 .status {
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 20px;
+  background: rgba(255,255,255,0.08);
+  border: 1.5px solid rgba(255,255,255,0.12);
 }
 
 .status.game-over {
-  color: #555;
+  color: #aaa;
 }
 
 .controls {
@@ -41,8 +94,10 @@
 .btn {
   padding: 10px 28px;
   border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor: pointer;
   border: none;
   transition: background 0.15s, transform 0.1s;
@@ -53,26 +108,29 @@
 }
 
 .btn-pass {
-  background: #8b5e2a;
-  color: #fff;
+  background: #444460;
+  color: #ccc;
+  border: 1.5px solid #666688;
 }
 
 .btn-pass:hover:not(:disabled) {
-  background: #a3712e;
+  background: #555578;
 }
 
 .btn-pass:disabled {
-  background: #c9b08a;
+  background: #333344;
+  color: #666;
+  border-color: #444455;
   cursor: not-allowed;
 }
 
 .btn-reset {
-  background: #3b1f08;
-  color: #fff;
+  background: #e8e0d0;
+  color: #1e1e2e;
 }
 
 .btn-reset:hover {
-  background: #5a3010;
+  background: #fff;
 }
 
 .legend {
@@ -85,26 +143,28 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.85rem;
-  color: #5a3a1a;
+  font-size: 0.8rem;
+  color: #888;
   font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 .legend-stone {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  box-shadow: 1px 2px 3px rgba(0,0,0,0.3);
+  box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
 }
 
 .blue-stone {
-  background: radial-gradient(circle at 35% 35%, #5ba3e0, #1a5fa8);
+  background: radial-gradient(circle at 35% 30%, #7ec3f5, #1a5fa8 70%);
 }
 
 .orange-stone {
-  background: radial-gradient(circle at 35% 35%, #ffb45a, #d96a00);
+  background: radial-gradient(circle at 35% 30%, #ffcc77, #d96a00 70%);
 }
 
 .neutral-stone {
-  background: radial-gradient(circle at 35% 35%, #b0b0b0, #555);
+  background: radial-gradient(circle at 35% 30%, #e8e8e8, #888 70%);
 }

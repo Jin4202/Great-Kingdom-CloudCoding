@@ -1,84 +1,76 @@
 import { EMPTY, BLUE, ORANGE, NEUTRAL, BOARD_SIZE } from './gameLogic';
 import styles from './Board.module.css';
 
-export default function Board({ board, turn, onCellClick, lastMove }) {
+export default function Board({ board, territory, turn, onCellClick, lastMove, gameOver }) {
   return (
-    <div className={styles.boardWrapper}>
-      <div className={styles.board}>
-        {/* Grid lines */}
-        <div className={styles.grid}>
-          {Array.from({ length: BOARD_SIZE - 1 }, (_, row) =>
-            Array.from({ length: BOARD_SIZE - 1 }, (_, col) => (
-              <div key={`${row}-${col}`} className={styles.cell} />
-            ))
-          )}
-        </div>
-
-        {/* Star points (hoshi) */}
-        {[[2, 2], [2, 6], [6, 2], [6, 6], [4, 4]].map(([r, c]) => (
-          <div
-            key={`star-${r}-${c}`}
-            className={styles.starPoint}
-            style={{
-              top: `calc(${r} * (100% / ${BOARD_SIZE - 1}))`,
-              left: `calc(${c} * (100% / ${BOARD_SIZE - 1}))`,
-            }}
-          />
-        ))}
-
-        {/* Intersection hit areas + stones */}
-        {board.map((row, r) =>
-          row.map((cell, c) => {
-            const isLast = lastMove?.row === r && lastMove?.col === c;
-            return (
-              <button
-                key={`${r}-${c}`}
-                className={styles.intersection}
-                style={{
-                  top: `calc(${r} * (100% / ${BOARD_SIZE - 1}))`,
-                  left: `calc(${c} * (100% / ${BOARD_SIZE - 1}))`,
-                }}
-                onClick={() => onCellClick(r, c)}
-                disabled={cell !== EMPTY}
-                aria-label={`Row ${r + 1}, Col ${c + 1}`}
-              >
-                {cell !== EMPTY && (
-                  <div
-                    className={[
-                      styles.stone,
-                      cell === BLUE ? styles.blueStone : '',
-                      cell === ORANGE ? styles.orangeStone : '',
-                      cell === NEUTRAL ? styles.neutralStone : '',
-                      isLast ? styles.lastMove : '',
-                    ].join(' ')}
-                  />
-                )}
-                {cell === EMPTY && (
-                  <div
-                    className={[
-                      styles.ghost,
-                      turn === BLUE ? styles.ghostBlue : styles.ghostOrange,
-                    ].join(' ')}
-                  />
-                )}
-              </button>
-            );
-          })
-        )}
-      </div>
-
+    <div className={styles.wrapper}>
       {/* Column labels */}
       <div className={styles.colLabels}>
+        <div className={styles.corner} />
         {Array.from({ length: BOARD_SIZE }, (_, i) => (
-          <span key={i}>{String.fromCharCode(65 + i)}</span>
+          <div key={i} className={styles.label}>
+            {String.fromCharCode(65 + i)}
+          </div>
         ))}
       </div>
 
-      {/* Row labels */}
-      <div className={styles.rowLabels}>
-        {Array.from({ length: BOARD_SIZE }, (_, i) => (
-          <span key={i}>{BOARD_SIZE - i}</span>
-        ))}
+      <div className={styles.boardRow}>
+        {/* Row labels */}
+        <div className={styles.rowLabels}>
+          {Array.from({ length: BOARD_SIZE }, (_, i) => (
+            <div key={i} className={styles.label}>
+              {BOARD_SIZE - i}
+            </div>
+          ))}
+        </div>
+
+        {/* Board */}
+        <div className={styles.board}>
+          {board.map((row, r) =>
+            row.map((cell, c) => {
+              const isLast = lastMove?.row === r && lastMove?.col === c;
+              const isEmpty = cell === EMPTY;
+              const terrOwner = territory?.[r]?.[c] ?? 0;
+
+              // A cell is blocked for the current player if it's opponent's confirmed territory
+              const opponent = turn === BLUE ? ORANGE : BLUE;
+              const isBlocked = isEmpty && terrOwner === opponent;
+
+              // Hover styles only for placeable empty cells
+              const canPlace = isEmpty && !isBlocked && !gameOver;
+
+              return (
+                <button
+                  key={`${r}-${c}`}
+                  className={[
+                    styles.cell,
+                    isEmpty ? styles.empty : '',
+                    terrOwner === BLUE ? styles.blueTerritory : '',
+                    terrOwner === ORANGE ? styles.orangeTerritory : '',
+                    isBlocked ? styles.blocked : '',
+                    canPlace && turn === BLUE ? styles.hoverBlue : '',
+                    canPlace && turn === ORANGE ? styles.hoverOrange : '',
+                  ].join(' ')}
+                  onClick={() => onCellClick(r, c)}
+                  disabled={!canPlace}
+                  aria-label={`${String.fromCharCode(65 + c)}${BOARD_SIZE - r}`}
+                >
+                  {cell !== EMPTY && (
+                    <div
+                      className={[
+                        styles.piece,
+                        cell === BLUE ? styles.bluePiece : '',
+                        cell === ORANGE ? styles.orangePiece : '',
+                        cell === NEUTRAL ? styles.neutralPiece : '',
+                        isLast ? styles.lastMove : '',
+                      ].join(' ')}
+                    />
+                  )}
+                </button>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
