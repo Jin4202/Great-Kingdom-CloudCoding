@@ -25,6 +25,40 @@
   text-shadow: 0 2px 8px rgba(0,0,0,0.5);
 }
 
+.btn-back {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: #aaa;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-back:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: #e8e0d0;
+}
+
+.online-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #7ec3f5;
+  background: rgba(126, 195, 245, 0.1);
+  border: 1px solid rgba(126, 195, 245, 0.25);
+  border-radius: 20px;
+  padding: 3px 12px;
+  margin-bottom: 8px;
+}
+
 .btn-rules {
   width: 32px;
   height: 32px;

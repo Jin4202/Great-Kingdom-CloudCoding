@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Board from './Board';
 import RulesOverlay from './RulesOverlay';
 import WinOverlay from './WinOverlay';
@@ -16,7 +17,8 @@ import {
 } from './gameLogic';
 import './App.css';
 
-export default function App() {
+export default function App({ mode = 'local' }) {
+  const navigate = useNavigate();
   const [state, setState] = useState(createInitialState());
   const [history, setHistory] = useState([]);
   const [moveLog, setMoveLog] = useState([]);
@@ -149,9 +151,11 @@ export default function App() {
       )}
 
       <div className="title-row">
+        <button className="btn-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
         <h1 className="title">Great Kingdom</h1>
         <button className="btn-rules" onClick={() => setShowRules(true)} aria-label="Show rules">?</button>
       </div>
+      {mode === 'online' && <div className="online-badge">Online</div>}
 
       <div className="territory-bar">
         <div className="territory-item blue-terr">
@@ -198,9 +202,11 @@ export default function App() {
         <button className="btn btn-pass" onClick={handlePass} disabled={gameOver}>
           Pass
         </button>
-        <button className="btn btn-undo" onClick={handleUndo} disabled={history.length === 0}>
-          Undo
-        </button>
+        {mode === 'local' && (
+          <button className="btn btn-undo" onClick={handleUndo} disabled={history.length === 0}>
+            Undo
+          </button>
+        )}
         <button className="btn btn-reset" onClick={handleReset}>
           New Game
         </button>

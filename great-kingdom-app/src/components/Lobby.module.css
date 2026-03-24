@@ -1,0 +1,146 @@
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100svh;
+  padding: 32px 20px;
+  background: #1e1e2e;
+  font-family: system-ui, sans-serif;
+}
+
+.title {
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #e8e0d0;
+  margin: 0 0 8px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 48px;
+}
+
+.menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 280px;
+}
+
+.divider {
+  font-size: 0.72rem;
+  color: #444;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 4px 0;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border: none;
+  background: #e8e0d0;
+  color: #1e1e2e;
+  transition: background 0.15s, transform 0.1s;
+}
+
+.btnPrimary:hover:not(:disabled) {
+  background: #fff;
+}
+
+.btnPrimary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btnPrimary:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  width: 100%;
+  padding: 12px 28px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+  border: 1.5px solid #333;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.btnSecondary:hover:not(:disabled) {
+  border-color: #666;
+  color: #ccc;
+}
+
+.btnSecondary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.joinLabel {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 0;
+}
+
+.codeInput {
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1.5px solid #333;
+  background: #14141f;
+  color: #e8e0d0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-align: center;
+  text-transform: uppercase;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.codeInput:focus {
+  border-color: #7ec3f5;
+}
+
+.codeInput::placeholder {
+  color: #333;
+  letter-spacing: 0.2em;
+}
+
+.error {
+  font-size: 0.82rem;
+  color: #f08080;
+  text-align: center;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(240, 128, 128, 0.08);
+  border: 1px solid rgba(240, 128, 128, 0.2);
+  border-radius: 8px;
+  width: 100%;
+  box-sizing: border-box;
+}
