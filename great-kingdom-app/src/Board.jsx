@@ -1,7 +1,7 @@
 import { EMPTY, BLUE, ORANGE, NEUTRAL, BOARD_SIZE } from './gameLogic';
 import styles from './Board.module.css';
 
-export default function Board({ board, territory, turn, onCellClick, lastMove, gameOver, suicideCells }) {
+export default function Board({ board, territory, turn, onCellClick, lastMove, gameOver, suicideCells, isOpponentTurn = false }) {
   return (
     <div className={styles.wrapper}>
       {/* Column labels */}
@@ -38,8 +38,8 @@ export default function Board({ board, territory, turn, onCellClick, lastMove, g
 
               const isSuicide = suicideCells?.[r]?.[c] ?? false;
 
-              // Hover styles only for placeable empty cells
-              const canPlace = isEmpty && !isBlocked && !isSuicide && !gameOver;
+              // Hover styles only for placeable empty cells; locked entirely on opponent's turn
+              const canPlace = isEmpty && !isBlocked && !isSuicide && !gameOver && !isOpponentTurn;
 
               return (
                 <button

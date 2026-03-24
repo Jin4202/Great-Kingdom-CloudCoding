@@ -91,10 +91,10 @@
 - [x] Route `/room/:code/play` → `OnlineGame` (replaces `App mode="online"` placeholder)
 
 ### Phase 5 — Turn Enforcement + Color Assignment
-- [ ] Compare `user.id` vs `rooms.blue_user` / `orange_user` to determine `myColor`
-- [ ] Add `isOpponentTurn` prop to `Board.jsx` — disables all cell clicks
-- [ ] Disable Undo button entirely in online mode
-- [ ] Status bar shows "Waiting for opponent..." when it's not your turn
+- [x] Compare `user.id` vs `rooms.blue_user` / `orange_user` to determine `myColor` *(done in Phase 4 — `useRoom.js`)*
+- [x] Add `isOpponentTurn` prop to `Board.jsx` — disables all cell clicks and hover effects
+- [x] Disable Undo button entirely in online mode *(done in Phase 4 — `OnlineGame.jsx` has no Undo)*
+- [x] Status bar shows "Waiting for opponent…" when it's not your turn *(done in Phase 4 — `OnlineGame.jsx`)*
 
 ### Phase 6 — Connection + Error Handling
 - [ ] "Connecting..." overlay while subscription establishes

@@ -211,6 +211,7 @@ export default function OnlineGame() {
           lastMove={gameState.lastMove}
           gameOver={gameOver}
           suicideCells={suicideCells}
+          isOpponentTurn={!isMyTurn && !gameOver}
         />
         <MoveLog entries={moveLog} />
       </div>
