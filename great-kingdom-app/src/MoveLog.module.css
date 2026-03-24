@@ -1,12 +1,14 @@
 .panel {
+  /* --cell mirrors the formula in Board.module.css so max-height tracks the board */
+  --cell: min(52px, calc((100vw - 96px) / 10));
   display: flex;
   flex-direction: column;
   width: 160px;
+  max-height: calc(9 * var(--cell) + 30px); /* 9 rows + labels/borders overhead */
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 12px;
   overflow: hidden;
-  align-self: stretch;
 }
 
 .header {
@@ -23,6 +25,7 @@
 .list {
   overflow-y: auto;
   flex: 1;
+  min-height: 0; /* allow flex item to shrink below content size so overflow-y kicks in */
   padding: 6px 0;
 }
 

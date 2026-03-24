@@ -227,11 +227,17 @@
 }
 
 .board-area {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: auto 160px;
+  align-items: start;
   gap: 16px;
-  flex-wrap: wrap;
   justify-content: center;
+}
+
+@media (max-width: 620px) {
+  .board-area {
+    grid-template-columns: 1fr;
+  }
 }
 
 .controls {
