@@ -70,8 +70,15 @@ create policy "rooms_insert" on public.rooms
   for insert with check (auth.uid() = blue_user);
 
 create policy "rooms_update" on public.rooms
-  for update using (
-    auth.uid() = blue_user or auth.uid() = orange_user
+  for update
+  using (
+    auth.uid() = blue_user
+    or auth.uid() = orange_user
+    or (orange_user is null and status = 'waiting')  -- allow a new player to claim the orange slot
+  )
+  with check (
+    auth.uid() = blue_user
+    or auth.uid() = orange_user  -- after the update the caller must be a member
   );
 
 -- game_states: room members can read; only the current turn's player can update
