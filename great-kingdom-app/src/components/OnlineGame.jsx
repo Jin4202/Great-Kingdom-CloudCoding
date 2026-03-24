@@ -10,7 +10,7 @@ import '../App.css'
 
 export default function OnlineGame() {
   const navigate = useNavigate()
-  const { gameState, myColor, isMyTurn, status, error, dispatchMove, dispatchPass } = useRoom()
+  const { gameState, myColor, isMyTurn, status, error, opponentOnline, connectionLost, dispatchMove, dispatchPass } = useRoom()
 
   const [moveLog, setMoveLog] = useState([])
   const [showRules, setShowRules] = useState(false)
@@ -162,6 +162,17 @@ export default function OnlineGame() {
           onNewGame={() => navigate('/')}
           onReview={() => setShowWin(false)}
         />
+      )}
+
+      {connectionLost && (
+        <div className="banner banner-error">
+          Connection lost — please refresh to reconnect.
+        </div>
+      )}
+      {!connectionLost && !opponentOnline && !gameOver && (
+        <div className="banner banner-warn">
+          Opponent disconnected — waiting for them to return…
+        </div>
       )}
 
       <div className="title-row">

@@ -48,6 +48,8 @@ export function useRoom() {
   const [myColor, setMyColor] = useState(null)
   const [status, setStatus] = useState('connecting') // 'connecting' | 'ready' | 'error'
   const [error, setError] = useState(null)
+  const [opponentOnline, setOpponentOnline] = useState(false)
+  const [connectionLost, setConnectionLost] = useState(false)
 
   // Stable refs — available inside async callbacks without stale closure issues
   const roomIdRef = useRef(null)
@@ -55,7 +57,8 @@ export function useRoom() {
   const moveCountRef = useRef(0)
 
   useEffect(() => {
-    let channel
+    let gameChannel
+    let presenceChannel
 
     async function init() {
       const user = await ensureAuth()
@@ -69,6 +72,8 @@ export function useRoom() {
       if (roomErr) throw new Error('Room not found.')
 
       const color = room.blue_user === user.id ? BLUE : ORANGE
+      const opponentId = room.blue_user === user.id ? room.orange_user : room.blue_user
+
       roomIdRef.current = room.id
       myColorRef.current = color
       setMyColor(color)
@@ -85,7 +90,7 @@ export function useRoom() {
       setStatus('ready')
 
       // 3. Subscribe to realtime updates on game_states
-      channel = supabase
+      gameChannel = supabase
         .channel(`game-${room.id}`)
         .on(
           'postgres_changes',
@@ -102,8 +107,22 @@ export function useRoom() {
         )
         .subscribe((s) => {
           if (s === 'CHANNEL_ERROR' || s === 'CLOSED') {
-            setStatus('error')
-            setError('Connection lost. Please refresh.')
+            setConnectionLost(true)
+          }
+        })
+
+      // 4. Presence channel — detect when opponent goes offline
+      presenceChannel = supabase
+        .channel(`presence-${room.id}`, {
+          config: { presence: { key: user.id } },
+        })
+        .on('presence', { event: 'sync' }, () => {
+          const state = presenceChannel.presenceState()
+          setOpponentOnline(opponentId != null && opponentId in state)
+        })
+        .subscribe(async (s) => {
+          if (s === 'SUBSCRIBED') {
+            await presenceChannel.track({ online: true })
           }
         })
     }
@@ -114,7 +133,8 @@ export function useRoom() {
     })
 
     return () => {
-      if (channel) supabase.removeChannel(channel)
+      if (gameChannel) supabase.removeChannel(gameChannel)
+      if (presenceChannel) supabase.removeChannel(presenceChannel)
     }
   }, [code])
 
@@ -201,5 +221,5 @@ export function useRoom() {
     [gameState]
   )
 
-  return { gameState, myColor, isMyTurn, status, error, dispatchMove, dispatchPass }
+  return { gameState, myColor, isMyTurn, status, error, opponentOnline, connectionLost, dispatchMove, dispatchPass }
 }

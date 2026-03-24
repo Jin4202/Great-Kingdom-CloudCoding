@@ -97,10 +97,10 @@
 - [x] Status bar shows "Waiting for opponent…" when it's not your turn *(done in Phase 4 — `OnlineGame.jsx`)*
 
 ### Phase 6 — Connection + Error Handling
-- [ ] "Connecting..." overlay while subscription establishes
-- [ ] Detect `CHANNEL_ERROR` / `CLOSED` → show "Connection lost — reconnecting..." banner
-- [ ] Use Supabase Presence to detect opponent tab close → show "Opponent disconnected" warning
-- [ ] Handle room-not-found and already-full errors in Join flow
+- [x] "Connecting…" screen while subscription establishes *(done in Phase 4 — `OnlineGame.jsx`)*
+- [x] Detect `CHANNEL_ERROR` / `CLOSED` → show "Connection lost" banner (non-blocking, board stays visible)
+- [x] Supabase Presence channel per room — `opponentOnline` state; shows "Opponent disconnected" warning banner when they go offline
+- [x] Room-not-found and already-full errors handled in `Lobby.jsx` *(done in Phase 3)*
 
 ### Phase 7 — Routing
 - [ ] Wrap `main.jsx` with `BrowserRouter`, define the 3 routes
