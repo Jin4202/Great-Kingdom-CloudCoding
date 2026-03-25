@@ -5,41 +5,46 @@ import RulesOverlay from '../RulesOverlay'
 import WinOverlay from '../WinOverlay'
 import MoveLog from '../MoveLog'
 import { useRoom } from '../hooks/useRoom'
+import { detectMoveLogEntry } from '../moveLogDetect'
 import { isSuicideMove, BLUE, ORANGE, EMPTY, BOARD_SIZE, MAX_PIECES } from '../gameLogic'
 import '../App.css'
 
 export default function OnlineGame() {
   const navigate = useNavigate()
-  const { gameState, myColor, isMyTurn, status, error, opponentOnline, opponentEverOnline, connectionLost, dispatchMove, dispatchPass } = useRoom()
+  const { gameState, myColor, isMyTurn, status, error, opponentOnline, opponentEverOnline, connectionLost, moveError, dispatchMove, dispatchPass } = useRoom()
 
   const [moveLog, setMoveLog] = useState([])
   const [showRules, setShowRules] = useState(false)
   const [confirmingPass, setConfirmingPass] = useState(false)
   const [showWin, setShowWin] = useState(false)
-  const prevStateRef = useRef(null)
+  const prevStateRef  = useRef(null)
+  const lastLoggedRef = useRef({ lastMove: null, passCount: 0 })
 
   function colToLetter(col) {
     return String.fromCharCode(65 + col)
   }
 
-  // Derive move log from successive state snapshots
+  // Derive move log from successive state snapshots.
+  // Uses detectMoveLogEntry to deduplicate optimistic-update + realtime-event
+  // pairs that carry the same coordinates (key-order-insensitive comparison).
   useEffect(() => {
     if (!gameState) return
     const prev = prevStateRef.current
     prevStateRef.current = gameState
-    if (!prev) return // skip initial load
 
-    if (
-      gameState.lastMove &&
-      JSON.stringify(gameState.lastMove) !== JSON.stringify(prev.lastMove)
-    ) {
-      const { row, col } = gameState.lastMove
-      setMoveLog((log) => [
-        ...log,
-        { player: prev.turn, type: 'place', coord: `${colToLetter(col)}${BOARD_SIZE - row}` },
-      ])
-    } else if (gameState.passCount > prev.passCount) {
-      setMoveLog((log) => [...log, { player: prev.turn, type: 'pass' }])
+    const entry = detectMoveLogEntry(prev, gameState, lastLoggedRef.current)
+    if (entry) {
+      if (entry.type === 'place') {
+        lastLoggedRef.current = { ...lastLoggedRef.current, lastMove: entry.lastMove }
+        const { row, col } = entry.lastMove
+        setMoveLog((log) => [
+          ...log,
+          { player: entry.player, type: 'place', coord: `${colToLetter(col)}${BOARD_SIZE - row}` },
+        ])
+      } else {
+        lastLoggedRef.current = { ...lastLoggedRef.current, passCount: gameState.passCount }
+        setMoveLog((log) => [...log, { player: entry.player, type: 'pass' }])
+      }
     }
 
     if (gameState.gameOver && !showWin) setShowWin(true)
@@ -167,6 +172,11 @@ export default function OnlineGame() {
       {connectionLost && (
         <div className="banner banner-error">
           Connection lost — please refresh to reconnect.
+        </div>
+      )}
+      {moveError && !connectionLost && (
+        <div className="banner banner-error">
+          {moveError}
         </div>
       )}
       {!connectionLost && opponentEverOnline && !opponentOnline && !gameOver && (

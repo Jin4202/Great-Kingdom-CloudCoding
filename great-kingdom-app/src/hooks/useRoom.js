@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase, ensureAuth } from '../lib/supabase'
-import { placeStone, passTurn, createInitialState, BLUE, ORANGE } from '../gameLogic'
+import { createInitialState, BLUE, ORANGE } from '../gameLogic'
+import { retryFetch } from '../lib/retryFetch'
 
 // ── Serialization ─────────────────────────────────────────────────────────────
 
@@ -51,11 +52,13 @@ export function useRoom() {
   const [opponentOnline, setOpponentOnline] = useState(false)
   const [opponentEverOnline, setOpponentEverOnline] = useState(false)
   const [connectionLost, setConnectionLost] = useState(false)
+  const [moveError, setMoveError] = useState(null)  // set when all retries are exhausted
 
   // Stable refs — available inside async callbacks without stale closure issues
-  const roomIdRef = useRef(null)
-  const myColorRef = useRef(null)
+  const roomIdRef    = useRef(null)
+  const myColorRef   = useRef(null)
   const moveCountRef = useRef(0)
+  const inFlightRef  = useRef(false)  // true while a move HTTP request is in-flight
 
   useEffect(() => {
     let cancelled = false
@@ -115,29 +118,81 @@ export function useRoom() {
       setGameState(deserializeState(gs))
       setStatus('ready')
 
-      // 3. Subscribe to realtime updates on game_states
-      gameChannel = supabase
-        .channel(`game-${room.id}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'game_states',
-            filter: `room_id=eq.${room.id}`,
-          },
-          (payload) => {
+      // 3. Subscribe to realtime updates on game_states.
+      //
+      //    `everSubscribed` — ensures we only react to CHANNEL_ERROR after the
+      //    channel has connected at least once.  On first mount it can briefly
+      //    error because a previous channel (WaitingRoom, Lobby browse) was
+      //    just torn down, closing the WebSocket for a moment.  That is a
+      //    transient teardown race; Supabase retries automatically.
+      //
+      //    Resubscribe on disconnect — auto-reconnect restores the WebSocket
+      //    transport but does not reliably re-apply `postgres_changes` row
+      //    filters.  When an established channel drops, we:
+      //      1. Show the connection-lost banner immediately.
+      //      2. Wait 2 s (lets Supabase attempt its own reconnect first).
+      //      3. Tear the channel down completely and recreate it from scratch.
+      //      4. On the new SUBSCRIBED event, re-fetch the full game state from
+      //         the DB to recover any updates missed during the outage.
+
+      let everSubscribed       = false
+      let resubscribeScheduled = false
+
+      async function refetchGameState() {
+        if (cancelled) return
+        const { data: fresh } = await supabase
+          .from('game_states')
+          .select('*')
+          .eq('room_id', room.id)
+          .single()
+        if (!cancelled && fresh) setGameState(deserializeState(fresh))
+      }
+
+      function subscribeGameChannel() {
+        gameChannel = supabase
+          .channel(`game-${room.id}`)
+          .on(
+            'postgres_changes',
+            {
+              event: 'UPDATE',
+              schema: 'public',
+              table: 'game_states',
+              filter: `room_id=eq.${room.id}`,
+            },
+            (payload) => {
+              if (cancelled) return
+              moveCountRef.current += 1
+              setGameState(deserializeState(payload.new))
+            }
+          )
+          .subscribe(async (s) => {
             if (cancelled) return
-            moveCountRef.current += 1
-            setGameState(deserializeState(payload.new))
-          }
-        )
-        .subscribe((s) => {
-          if (cancelled) return
-          if (s === 'CHANNEL_ERROR') {
-            setConnectionLost(true)
-          }
-        })
+            if (s === 'SUBSCRIBED') {
+              everSubscribed       = true
+              resubscribeScheduled = false
+              setConnectionLost(false)
+              // Re-fetch state to recover any updates missed during the gap.
+              // On initial connect this is a harmless second fetch that ensures
+              // we have the very latest state even if an update landed between
+              // the init() fetch and the channel subscription.
+              await refetchGameState()
+            } else if (s === 'CHANNEL_ERROR' || s === 'TIMED_OUT') {
+              if (!everSubscribed) return        // transient setup race — ignore
+              if (resubscribeScheduled) return   // already waiting
+
+              resubscribeScheduled = true
+              setConnectionLost(true)
+
+              setTimeout(() => {
+                if (cancelled) return
+                supabase.removeChannel(gameChannel)
+                subscribeGameChannel()
+              }, 2000)
+            }
+          })
+      }
+
+      subscribeGameChannel()
 
       // If cleanup ran while we were awaiting, remove channels immediately
       if (cancelled) {
@@ -184,45 +239,65 @@ export function useRoom() {
 
   const isMyTurn = gameState != null && !gameState.gameOver && gameState.turn === myColor
 
+  // ── Edge Function endpoint ───────────────────────────────────────────────────
+
+  const VALIDATE_MOVE_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-move`
+
+  async function callValidateMove(payload) {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return null
+
+    // One UUID per move — the same key is reused across all retry attempts so
+    // a successfully retried request is a no-op on the server instead of a
+    // double-apply.
+    const idempotencyKey = crypto.randomUUID()
+
+    const headers = {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    }
+    const fetchBody = JSON.stringify({
+      ...payload,
+      move_number:     moveCountRef.current,
+      idempotency_key: idempotencyKey,
+    })
+
+    try {
+      const res = await retryFetch(VALIDATE_MOVE_URL, { method: 'POST', headers, body: fetchBody })
+      const responseBody = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        console.error('validate-move rejected:', responseBody.error ?? res.status)
+        return null
+      }
+      setMoveError(null)
+      return responseBody.state  // camelCase game state from Edge Function
+    } catch (err) {
+      // All retries exhausted (transient 5xx / network).  The move was NOT
+      // committed; surface a recoverable error so the user can retry manually.
+      console.error('validate-move failed after retries:', err.message)
+      setMoveError('Move failed — please try again.')
+      return null
+    }
+  }
+
   // ── dispatchMove ────────────────────────────────────────────────────────────
 
   const dispatchMove = useCallback(
     async (row, col) => {
       if (!gameState || gameState.turn !== myColorRef.current || gameState.gameOver) return null
-      const next = placeStone(gameState, row, col)
-      if (!next) return null
-
-      // Optimistic update — opponent will receive via realtime
-      setGameState(next)
-
-      const roomId = roomIdRef.current
-      const { error: updateErr } = await supabase
-        .from('game_states')
-        .update(serializeState(next))
-        .eq('room_id', roomId)
-
-      if (updateErr) {
-        console.error('dispatchMove:', updateErr)
-        setGameState(gameState) // revert on failure
-        return null
+      if (inFlightRef.current) return null
+      inFlightRef.current = true
+      try {
+        const next = await callValidateMove({ roomCode: code, type: 'place', row, col })
+        if (!next) return null
+        setGameState(next)
+        moveCountRef.current += 1
+        return next
+      } finally {
+        inFlightRef.current = false
       }
-
-      await supabase.from('move_log').insert({
-        room_id: roomId,
-        move_number: moveCountRef.current + 1,
-        player: myColorRef.current,
-        type: 'place',
-        row,
-        col,
-      })
-
-      if (next.gameOver) {
-        await supabase.from('rooms').update({ status: 'finished' }).eq('id', roomId)
-      }
-
-      return next
     },
-    [gameState]
+    [gameState, code]
   )
 
   // ── dispatchPass ────────────────────────────────────────────────────────────
@@ -230,40 +305,20 @@ export function useRoom() {
   const dispatchPass = useCallback(
     async () => {
       if (!gameState || gameState.turn !== myColorRef.current || gameState.gameOver) return null
-      const next = passTurn(gameState)
-
-      // Optimistic update
-      setGameState(next)
-
-      const roomId = roomIdRef.current
-      const { error: updateErr } = await supabase
-        .from('game_states')
-        .update(serializeState(next))
-        .eq('room_id', roomId)
-
-      if (updateErr) {
-        console.error('dispatchPass:', updateErr)
-        setGameState(gameState)
-        return null
+      if (inFlightRef.current) return null
+      inFlightRef.current = true
+      try {
+        const next = await callValidateMove({ roomCode: code, type: 'pass' })
+        if (!next) return null
+        setGameState(next)
+        moveCountRef.current += 1
+        return next
+      } finally {
+        inFlightRef.current = false
       }
-
-      await supabase.from('move_log').insert({
-        room_id: roomId,
-        move_number: moveCountRef.current + 1,
-        player: myColorRef.current,
-        type: 'pass',
-        row: null,
-        col: null,
-      })
-
-      if (next.gameOver) {
-        await supabase.from('rooms').update({ status: 'finished' }).eq('id', roomId)
-      }
-
-      return next
     },
-    [gameState]
+    [gameState, code]
   )
 
-  return { gameState, myColor, isMyTurn, status, error, opponentOnline, opponentEverOnline, connectionLost, dispatchMove, dispatchPass }
+  return { gameState, myColor, isMyTurn, status, error, opponentOnline, opponentEverOnline, connectionLost, moveError, dispatchMove, dispatchPass }
 }

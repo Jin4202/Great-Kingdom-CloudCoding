@@ -8,6 +8,7 @@ export default function WaitingRoom() {
   const navigate = useNavigate()
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState(null)
+  const [visibility, setVisibility] = useState('private')
   const roomIdRef = useRef(null)
 
   // One-time setup: validate room and subscribe to realtime
@@ -17,7 +18,7 @@ export default function WaitingRoom() {
 
     supabase
       .from('rooms')
-      .select('id, status')
+      .select('id, status, visibility')
       .eq('code', code)
       .single()
       .then(({ data, error: err }) => {
@@ -27,6 +28,7 @@ export default function WaitingRoom() {
         if (data.status === 'finished') { setError('This room has already finished.'); return }
 
         roomIdRef.current = data.id
+        setVisibility(data.visibility ?? 'private')
 
         channel = supabase
           .channel(`waiting-${data.id}`)
@@ -50,16 +52,17 @@ export default function WaitingRoom() {
 
   // Polling fallback — runs independently so StrictMode doesn't interfere
   useEffect(() => {
+    let cancelled = false
     const interval = setInterval(async () => {
       const { data } = await supabase
         .from('rooms')
         .select('status')
         .eq('code', code)
         .single()
-      if (data?.status === 'playing') navigate(`/room/${code}/play`)
+      if (!cancelled && data?.status === 'playing') navigate(`/room/${code}/play`)
     }, 2000)
 
-    return () => clearInterval(interval)
+    return () => { cancelled = true; clearInterval(interval) }
   }, [code, navigate])
 
   function handleCopy() {
@@ -71,7 +74,11 @@ export default function WaitingRoom() {
   return (
     <div className={styles.waiting}>
       <h1 className={styles.title}>Great Kingdom</h1>
-      <p className={styles.label}>Share this code with your opponent</p>
+      <p className={styles.label}>
+        {visibility === 'public'
+          ? 'Your room is listed in the public lobby'
+          : 'Share this code with your opponent'}
+      </p>
       <div className={styles.codeBox}>
         <span className={styles.code}>{code}</span>
         <button className={styles.copyBtn} onClick={handleCopy}>
