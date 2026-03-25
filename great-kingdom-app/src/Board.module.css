@@ -78,7 +78,7 @@
   background: #b8cfe0;
 }
 
-.orangeTerritory {
+.redTerritory {
   background: #e0c8b0;
 }
 
@@ -110,12 +110,12 @@
   background: #a8c0d8;
 }
 
-.hoverOrange:hover {
+.hoverRed:hover {
   background: #d8b898;
 }
 
 .hoverBlue:hover::after,
-.hoverOrange:hover::after {
+.hoverRed:hover::after {
   content: '';
   position: absolute;
   width: calc(var(--cell) * 0.69);
@@ -129,7 +129,7 @@
   background: radial-gradient(circle at 35% 35%, #7bbff0, #1a5fa8);
 }
 
-.hoverOrange:hover::after {
+.hoverRed:hover::after {
   background: radial-gradient(circle at 35% 35%, #ffcc88, #d96a00);
 }
 
@@ -160,7 +160,7 @@
   border: 1.5px solid rgba(10, 50, 120, 0.3);
 }
 
-.orangePiece {
+.redPiece {
   background: radial-gradient(circle at 35% 30%, #ffcc77, #d96a00 70%);
   border: 1.5px solid rgba(120, 40, 0, 0.3);
 }

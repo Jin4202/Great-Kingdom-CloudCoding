@@ -12,16 +12,6 @@
 
 ---
 
-## ✅ Rules to Verify with Real Play
-
-- [ ] **Eye rule via no-entry** — The eye rule (§4-5) is currently implemented *implicitly*: enclosed territory → no-entry → group can't be captured. Verify this holds correctly for edge groups once the edge territory bug is fixed.
-
-- [ ] **Territory containing neutral castle** — §4-4 says neutral castle inside an enclosure still counts as territory. Confirm the BFS correctly treats neutral as a wall (stops expansion) and doesn't subtract the neutral cell from the count. Currently neutral stops BFS but isn't subtracted — which matches the rule.
-
-- [ ] **Both-player enclosure** — An enclosed empty region bordered by both Blue and Orange is correctly not counted as territory. Verify this renders correctly on the board (no tint).
-
----
-
 ## 🎮 Missing Features
 
 - [x] **Piece counter HUD** — `bluePieces` / `orangePieces` from state displayed in a `pieces-bar` above the status line; counts down from 40 as pieces are placed.
@@ -62,9 +52,65 @@
 
 ---
 
+## 🌐 Multiplayer (Planned)
+
+**Tech stack:** Supabase (Postgres + Realtime + anonymous auth) + `react-router-dom`
+
+**Architecture:** `gameLogic.js` stays unchanged. State moves from local `useState` to Supabase; only the active player can write; both players receive updates via realtime subscription.
+
+### Phase 1 — Supabase Setup
+- [x] Create Supabase project, get `SUPABASE_URL` + `SUPABASE_ANON_KEY` *(manual — dashboard)*
+- [x] Create `rooms` table (`id`, `code`, `status`, `blue_user`, `orange_user`) — SQL in `supabase/schema.sql`
+- [x] Create `game_states` table (`room_id`, `board`, `territory`, `turn`, `pass_count`, `blue_pieces`, `orange_pieces`, `game_over`, `winner`, `win_reason`, `last_move`, timestamps) — SQL in `supabase/schema.sql`
+- [x] Create `move_log` table (`room_id`, `move_number`, `player`, `type`, `row`, `col`) — SQL in `supabase/schema.sql`
+- [x] Run `supabase/schema.sql` in Supabase SQL Editor *(manual — dashboard)*
+- [x] Enable Realtime on `rooms` + `game_states` tables *(manual — Database → Replication)*
+- [x] Create `great-kingdom-app/.env.local` with placeholder env vars (gitignored via `*.local`)
+
+### Phase 2 — Supabase Client + Auth
+- [x] Install `@supabase/supabase-js`
+- [x] Create `src/lib/supabase.js` — singleton client from `import.meta.env`
+- [x] Anonymous sign-in (`supabase.auth.signInAnonymously()`) — `ensureAuth()` helper in `src/lib/supabase.js`
+
+### Phase 3 — Lobby + Waiting Room UI
+- [x] Install `react-router-dom`, add 4 routes: `/` (Lobby), `/play` (local), `/room/:code/wait` (WaitingRoom), `/room/:code/play` (online)
+- [x] Create `src/components/Lobby.jsx` — Local 2-Player / Create Game / Join Game with code input
+- [x] Create `src/components/WaitingRoom.jsx` — display 6-char room code, copy button, pulse indicator, realtime subscription
+- [x] Create Game flow: generate 6-char code → insert `rooms` + initial `game_states` → navigate to WaitingRoom → subscribe for opponent joining
+- [x] Join Game flow: lookup room by code → validate status/ownership → update `orange_user` + status → navigate to game
+- [x] Update `App.jsx` — add `mode` prop, Back button, online badge, disable Undo in online mode
+
+### Phase 4 — Game State Sync (core)
+- [x] Create `src/hooks/useRoom.js`:
+  - Fetch room + `game_states` on mount, resolve `myColor` from `blue_user`/`orange_user`
+  - Subscribe to realtime `UPDATE` on `game_states` → update local React state
+  - Expose `gameState`, `myColor`, `isMyTurn`, `status`, `error`, `dispatchMove`, `dispatchPass`
+- [x] `dispatchMove`: guard `isMyTurn` → `placeStone()` → optimistic update → upsert to Supabase → insert `move_log` row
+- [x] `dispatchPass`: guard `isMyTurn` → `passTurn()` → optimistic update → upsert to Supabase → insert `move_log` row
+- [x] Create `src/components/OnlineGame.jsx` — full game UI wired to `useRoom`; derives move log from state diffs; shows "Your turn" / "Waiting for opponent…"; connecting/error screens
+- [x] Route `/room/:code/play` → `OnlineGame` (replaces `App mode="online"` placeholder)
+
+### Phase 5 — Turn Enforcement + Color Assignment
+- [x] Compare `user.id` vs `rooms.blue_user` / `orange_user` to determine `myColor` *(done in Phase 4 — `useRoom.js`)*
+- [x] Add `isOpponentTurn` prop to `Board.jsx` — disables all cell clicks and hover effects
+- [x] Disable Undo button entirely in online mode *(done in Phase 4 — `OnlineGame.jsx` has no Undo)*
+- [x] Status bar shows "Waiting for opponent…" when it's not your turn *(done in Phase 4 — `OnlineGame.jsx`)*
+
+### Phase 6 — Connection + Error Handling
+- [x] "Connecting…" screen while subscription establishes *(done in Phase 4 — `OnlineGame.jsx`)*
+- [x] Detect `CHANNEL_ERROR` / `CLOSED` → show "Connection lost" banner (non-blocking, board stays visible)
+- [x] Supabase Presence channel per room — `opponentOnline` state; shows "Opponent disconnected" warning banner when they go offline
+- [x] Room-not-found and already-full errors handled in `Lobby.jsx` *(done in Phase 3)*
+
+### Phase 7 — Routing
+- [ ] Wrap `main.jsx` with `BrowserRouter`, define the 3 routes
+- [ ] Update `App.jsx` to accept `mode` prop (`'local'` | `'online'`) and branch accordingly
+
+---
+
 ## 🔮 Future / Nice-to-Have
 
-- [ ] **Online multiplayer** — WebSocket or peer-to-peer via WebRTC.
-- [ ] **Game replay** — Step through a completed game.
+- [ ] **Game replay** — Step through a completed game (move_log table already planned).
 - [ ] **Handicap / variant modes** — Different komi values or piece counts.
 - [ ] **Accessibility** — Keyboard navigation, screen reader labels (coordinates are already on `aria-label`, but focus management is missing).
+- [ ] **Server-side move validation** — Move game logic to a Supabase Edge Function to prevent cheating.

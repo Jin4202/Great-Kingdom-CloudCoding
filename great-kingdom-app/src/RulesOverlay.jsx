@@ -15,7 +15,7 @@ export default function RulesOverlay({ onClose }) {
             <h3 className={styles.sectionTitle}>Goal</h3>
             <ul className={styles.list}>
               <li><strong>Capture win</strong> — surround any enemy piece on all 4 orthogonal sides. The game ends immediately.</li>
-              <li><strong>Territory win</strong> — if both players pass consecutively, the player with more enclosed empty squares wins. Blue (first) needs at least 3 more than Orange to win.</li>
+              <li><strong>Territory win</strong> — if both players pass consecutively, the player with more enclosed empty squares wins. Blue (first) needs at least 3 more than Red to win.</li>
             </ul>
           </section>
 
