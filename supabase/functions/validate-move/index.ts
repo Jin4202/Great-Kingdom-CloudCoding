@@ -18,7 +18,7 @@
 
 // @deno-types="https://esm.sh/@supabase/supabase-js@2/dist/module/index.d.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { placeStone, passTurn, BLUE, ORANGE, BOARD_SIZE } from './gameLogic.js'
+import { placeStone, passTurn, BLUE, RED, BOARD_SIZE } from './gameLogic.js'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -42,9 +42,9 @@ function deserializeState(row: Record<string, any>) {
     turn:            row.turn            as number,
     passCount:       row.pass_count      as number,
     bluePieces:      row.blue_pieces     as number,
-    orangePieces:    row.orange_pieces   as number,
+    redPieces:       row.orange_pieces   as number,
     blueTerritory:   row.blue_territory  as number,
-    orangeTerritory: row.orange_territory as number,
+    redTerritory:    row.orange_territory as number,
     gameOver:        row.game_over       as boolean,
     winner:          (row.winner  ?? null) as number | null,
     winReason:       (row.win_reason ?? null) as string | null,
@@ -61,9 +61,9 @@ function serializeState(state: GameState) {
     turn:             state.turn,
     pass_count:       state.passCount,
     blue_pieces:      state.bluePieces,
-    orange_pieces:    state.orangePieces,
+    orange_pieces:    state.redPieces,
     blue_territory:   state.blueTerritory,
-    orange_territory: state.orangeTerritory,
+    orange_territory: state.redTerritory,
     game_over:        state.gameOver,
     winner:           state.winner   ?? null,
     win_reason:       state.winReason ?? null,
@@ -133,7 +133,7 @@ Deno.serve(async (req: Request) => {
   if (room.blue_user === user.id) {
     callerColor = BLUE
   } else if (room.orange_user === user.id) {
-    callerColor = ORANGE
+    callerColor = RED
   } else {
     return json({ error: 'not_a_member' }, 403)
   }

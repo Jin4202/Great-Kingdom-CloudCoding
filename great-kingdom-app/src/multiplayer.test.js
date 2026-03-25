@@ -39,9 +39,9 @@ function serializeState(state) {
     turn: state.turn,
     pass_count: state.passCount,
     blue_pieces: state.bluePieces,
-    orange_pieces: state.orangePieces,
+    orange_pieces: state.redPieces,
     blue_territory: state.blueTerritory,
-    orange_territory: state.orangeTerritory,
+    orange_territory: state.redTerritory,
     game_over: state.gameOver,
     winner: state.winner ?? null,
     win_reason: state.winReason ?? null,
@@ -55,9 +55,9 @@ function randomCode() {
 
 // ── shared state across tests ────────────────────────────────────────────────
 
-let blue, orange          // Supabase clients
-let blueUser, orangeUser  // auth.User objects
-let roomCode, roomId      // room created by Blue
+let blue, red          // Supabase clients
+let blueUser, redUser  // auth.User objects
+let roomCode, roomId   // room created by Blue
 
 // ── suite ───────────────────────────────────────────────────────────────────
 
@@ -67,13 +67,13 @@ describe('Multiplayer room flow', () => {
     if (!supabaseUrl || !supabaseAnonKey) {
       throw new Error('Missing VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — add them to .env.local')
     }
-    blue   = makeClient()
-    orange = makeClient()
+    blue = makeClient()
+    red  = makeClient()
   })
 
   afterAll(async () => {
     await blue.auth.signOut()
-    await orange.auth.signOut()
+    await red.auth.signOut()
   })
 
   // ── Auth ──────────────────────────────────────────────────────────────────
@@ -86,13 +86,13 @@ describe('Multiplayer room flow', () => {
     console.log('  Blue user id:', blueUser.id)
   })
 
-  it('Orange signs in anonymously (different user)', async () => {
-    const { data, error } = await orange.auth.signInAnonymously()
+  it('Red signs in anonymously (different user)', async () => {
+    const { data, error } = await red.auth.signInAnonymously()
     expect(error, `signInAnonymously error: ${error?.message}`).toBeNull()
     expect(data.user).toBeDefined()
-    orangeUser = data.user
-    console.log('  Orange user id:', orangeUser.id)
-    expect(orangeUser.id).not.toBe(blueUser.id)
+    redUser = data.user
+    console.log('  Red user id:', redUser.id)
+    expect(redUser.id).not.toBe(blueUser.id)
   })
 
   // ── Room creation ─────────────────────────────────────────────────────────
@@ -121,8 +121,8 @@ describe('Multiplayer room flow', () => {
 
   // ── Orange finds and reads the room ───────────────────────────────────────
 
-  it('Orange can SELECT the room by code (rooms_select policy)', async () => {
-    const { data, error } = await orange
+  it('Red can SELECT the room by code (rooms_select policy)', async () => {
+    const { data, error } = await red
       .from('rooms')
       .select('id, status, blue_user, orange_user')
       .eq('code', roomCode)
@@ -135,9 +135,9 @@ describe('Multiplayer room flow', () => {
     expect(data.orange_user).toBeNull()
   })
 
-  it('Orange CANNOT read game_states before joining (RLS should block)', async () => {
+  it('Red CANNOT read game_states before joining (RLS should block)', async () => {
     // orange_user is NULL → the game_states_select policy should reject this
-    const { data, error } = await orange
+    const { data, error } = await red
       .from('game_states')
       .select('*')
       .eq('room_id', roomId)
@@ -150,12 +150,12 @@ describe('Multiplayer room flow', () => {
     else       console.log('  data is null?', data === null, '← should be true if RLS is working')
   })
 
-  // ── Orange joins (the critical UPDATE) ────────────────────────────────────
+  // ── Red joins (the critical UPDATE) ────────────────────────────────────────
 
-  it('Orange can UPDATE the room to join (rooms_update policy)', async () => {
-    const { data, error } = await orange
+  it('Red can UPDATE the room to join (rooms_update policy)', async () => {
+    const { data, error } = await red
       .from('rooms')
-      .update({ orange_user: orangeUser.id, status: 'playing' })
+      .update({ orange_user: redUser.id, status: 'playing' })
       .eq('id', roomId)
       .select('id, status, orange_user')  // returns the updated rows
     console.log('  UPDATE error:', error)
@@ -164,13 +164,13 @@ describe('Multiplayer room flow', () => {
     expect(error, `rooms update: ${error?.message}`).toBeNull()
     expect(
       data?.length,
-      'UPDATE returned 0 rows — RLS is blocking Orange. Run the new rooms_update policy in Supabase SQL Editor.'
+      'UPDATE returned 0 rows — RLS is blocking Red. Run the new rooms_update policy in Supabase SQL Editor.'
     ).toBeGreaterThan(0)
   })
 
   // ── Blue polls and sees the change ────────────────────────────────────────
 
-  it('Blue can read room status = "playing" after Orange joins', async () => {
+  it('Blue can read room status = "playing" after Red joins', async () => {
     const { data, error } = await blue
       .from('rooms')
       .select('status, orange_user')
@@ -179,18 +179,18 @@ describe('Multiplayer room flow', () => {
     console.log('  Blue poll result:', data, error)
     expect(error, `rooms select: ${error?.message}`).toBeNull()
     expect(data.status, 'Status should be "playing" — if this is still "waiting", the UPDATE in the previous step was silently blocked by RLS').toBe('playing')
-    expect(data.orange_user).toBe(orangeUser.id)
+    expect(data.orange_user).toBe(redUser.id)
   })
 
-  it('Orange can read game_states after joining', async () => {
-    const { data, error } = await orange
+  it('Red can read game_states after joining', async () => {
+    const { data, error } = await red
       .from('game_states')
       .select('room_id, turn')
       .eq('room_id', roomId)
       .maybeSingle()
     console.log('  game_states post-join SELECT:', data, error)
     expect(error, `game_states select: ${error?.message}`).toBeNull()
-    expect(data, 'Orange should be able to read game_states after orange_user is set').not.toBeNull()
+    expect(data, 'Red should be able to read game_states after orange_user is set').not.toBeNull()
   })
 
   it('Blue can read game_states (as room creator)', async () => {
@@ -227,21 +227,21 @@ describe('Multiplayer room flow', () => {
     })
   )
 
-  it('Orange can subscribe to game_states realtime channel', () =>
+  it('Red can subscribe to game_states realtime channel', () =>
     new Promise((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error('Subscription never became SUBSCRIBED within 5s')), 5000)
-      const ch = orange
-        .channel(`test-game-${roomId}-orange`)
+      const ch = red
+        .channel(`test-game-${roomId}-red`)
         .subscribe((status) => {
-          console.log('  Orange game channel status:', status)
+          console.log('  Red game channel status:', status)
           if (status === 'SUBSCRIBED') {
             clearTimeout(timeout)
-            orange.removeChannel(ch)
+            red.removeChannel(ch)
             resolve()
           }
           if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
             clearTimeout(timeout)
-            orange.removeChannel(ch)
+            red.removeChannel(ch)
             reject(new Error(`Channel failed with status: ${status}`))
           }
         })

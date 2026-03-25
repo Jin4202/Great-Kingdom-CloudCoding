@@ -20,7 +20,7 @@ create table if not exists public.game_states (
   room_id           uuid not null references public.rooms(id) on delete cascade,
   board             jsonb not null,              -- 9×9 number[][]
   territory         jsonb not null,              -- 9×9 number[][]
-  turn              int  not null default 1,     -- 1=BLUE, 2=ORANGE
+  turn              int  not null default 1,     -- 1=BLUE, 2=RED
   pass_count        int  not null default 0,
   blue_pieces       int  not null default 0,
   orange_pieces     int  not null default 0,
@@ -38,7 +38,7 @@ create table if not exists public.move_log (
   id            bigint primary key generated always as identity,
   room_id       uuid not null references public.rooms(id) on delete cascade,
   move_number   int  not null,
-  player        int  not null,                   -- 1=BLUE, 2=ORANGE
+  player        int  not null,                   -- 1=BLUE, 2=RED
   type          text not null                    -- 'place' | 'pass'
                 check (type in ('place', 'pass')),
   row           int,                             -- null for pass

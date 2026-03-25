@@ -1,399 +1,420 @@
+/* ── Layout ───────────────────────────────────────────────────────────────── */
+
 .app {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 32px 20px 48px;
+  align-items: center;          /* centre every child horizontally */
   min-height: 100svh;
-  background: #1e1e2e;
+  overflow-y: auto;
+  padding: 12px 16px 24px;
+  gap: 10px;
+  background: #f8f9fa;
   font-family: system-ui, sans-serif;
+  color: #1a1a2e;
+  box-sizing: border-box;
 }
+
+/* ── Title row ────────────────────────────────────────────────────────────── */
 
 .title-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  width: 100%;
+  max-width: 620px;
 }
 
 .title {
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #e8e0d0;
+  color: #1a1a2e;
   margin: 0;
-  text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  flex: 1;
 }
+
+/* ── Banners ──────────────────────────────────────────────────────────────── */
 
 .banner {
   width: 100%;
-  max-width: 500px;
-  padding: 8px 16px;
+  max-width: 620px;
+  padding: 6px 14px;
   border-radius: 8px;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.03em;
   text-align: center;
-  margin-bottom: 8px;
 }
 
 .banner-error {
-  background: rgba(240, 128, 128, 0.1);
-  border: 1px solid rgba(240, 128, 128, 0.3);
-  color: #f08080;
+  background: #fff0f0;
+  border: 1px solid #fca5a5;
+  color: #b91c1c;
 }
 
 .banner-warn {
-  background: rgba(255, 200, 80, 0.08);
-  border: 1px solid rgba(255, 200, 80, 0.2);
-  color: #c8a855;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
+  color: #92400e;
 }
 
+/* ── Nav buttons ──────────────────────────────────────────────────────────── */
+
 .btn-back {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
-  color: #aaa;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #4b5563;
   font-size: 1rem;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition: background 0.15s, border-color 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-.btn-back:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #e8e0d0;
+.btn-back:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+.btn-rules {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #4b5563;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
+
+.btn-rules:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+/* ── Online badge ─────────────────────────────────────────────────────────── */
 
 .online-badge {
   font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #7ec3f5;
-  background: rgba(126, 195, 245, 0.1);
-  border: 1px solid rgba(126, 195, 245, 0.25);
+  color: #1d4ed8;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
   border-radius: 20px;
   padding: 3px 12px;
-  margin-bottom: 8px;
-}
-
-.btn-rules {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.06);
-  color: #aaa;
-  font-size: 1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: background 0.15s, color 0.15s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
 }
 
-.btn-rules:hover {
-  background: rgba(255, 255, 255, 0.14);
-  color: #e8e0d0;
-}
+/* ── Scoreboard ───────────────────────────────────────────────────────────── */
 
-.territory-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 12px;
-  padding: 10px 24px;
-}
-
-.territory-item {
+.scoreboard {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  max-width: 620px;
 }
 
-.terr-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.blue-terr .terr-label { color: #7ec3f5; }
-.orange-terr .terr-label { color: #ffcc77; }
-
-.terr-count {
-  font-size: 1.6rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-
-.blue-terr .terr-count { color: #7ec3f5; }
-.orange-terr .terr-count { color: #ffcc77; }
-
-.territory-divider {
-  font-size: 0.7rem;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.pieces-bar {
+.score-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+  gap: 3px;
+  padding: 7px 20px;
   border-radius: 12px;
-  padding: 8px 24px;
+  border: 1.5px solid;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  min-width: 120px;
 }
 
-.pieces-item {
+.score-blue { background: #eff6ff; border-color: #bfdbfe; }
+.score-red  { background: #fff5f5; border-color: #fecaca; }
+
+.score-player {
+  font-size: 0.62rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.score-blue .score-player { color: #1d4ed8; }
+.score-red  .score-player { color: #b91c1c; }
+
+.score-nums {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 4px;
 }
 
-.pieces-label {
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  opacity: 0.6;
-}
-
-.blue-pieces .pieces-label  { color: #7ec3f5; }
-.orange-pieces .pieces-label { color: #ffcc77; }
-
-.pieces-remaining {
-  font-size: 1.4rem;
+.score-big {
+  font-size: 1.5rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
 
-.blue-pieces .pieces-remaining  { color: #7ec3f5; }
-.orange-pieces .pieces-remaining { color: #ffcc77; }
+.score-blue .score-big { color: #2563eb; }
+.score-red  .score-big { color: #dc2626; }
 
-.pieces-unit {
-  font-size: 0.7rem;
-  font-weight: 600;
+.score-lbl {
+  font-size: 0.60rem;
+  color: #9ca3af;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  opacity: 0.45;
-  color: #aaa;
+  letter-spacing: 0.04em;
 }
 
-.pieces-divider {
-  font-size: 0.7rem;
-  color: #555;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+.score-sep {
+  color: #d1d5db;
+  font-size: 0.85rem;
+  align-self: center;
 }
 
-.status-bar {
-  height: 36px;
+.score-status {
+  flex: 1;
   display: flex;
+  justify-content: center;
   align-items: center;
-  margin-bottom: 20px;
 }
+
+/* ── Status label ─────────────────────────────────────────────────────────── */
 
 .status {
-  font-size: 1rem;
+  font-size: 0.80rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  padding: 6px 18px;
+  padding: 5px 14px;
   border-radius: 20px;
-  background: rgba(255,255,255,0.08);
-  border: 1.5px solid rgba(255,255,255,0.12);
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  white-space: nowrap;
+  text-align: center;
 }
 
-.status.game-over {
-  color: #aaa;
-}
+.status.game-over { color: #6b7280; }
+
+/* ── Board area — vertical stack on all screen sizes ─────────────────────── */
 
 .board-area {
-  display: grid;
-  grid-template-columns: auto 160px;
-  align-items: start;
-  gap: 16px;
-  justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
 }
 
-@media (max-width: 620px) {
-  .board-area {
-    grid-template-columns: 1fr;
-  }
+/* ── Canvas ───────────────────────────────────────────────────────────────── */
+
+.canvas-container {
+  --canvas-size: min(calc(100vw - 32px), 500px);
+  width: var(--canvas-size);
+  height: var(--canvas-size);
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.14);
 }
+
+/* ── Sidebar — below canvas, matches canvas width ────────────────────────── */
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+}
+
+/* Controls / pass-confirm always appear ABOVE MoveLog */
+.controls   { order: -1; }
+.pass-confirm { order: -1; }
+
+/* Legend: horizontal row */
+.legend {
+  order: 1;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ── Controls ─────────────────────────────────────────────────────────────── */
 
 .controls {
   display: flex;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
+
+/* ── Buttons ──────────────────────────────────────────────────────────────── */
 
 .btn {
-  padding: 10px 28px;
+  padding: 10px 20px;
   border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  border: none;
-  transition: background 0.15s, transform 0.1s;
+  border: 1px solid transparent;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.btn:active {
-  transform: scale(0.97);
-}
+.btn:active { transform: scale(0.97); }
 
 .btn-pass {
-  background: #444460;
-  color: #ccc;
-  border: 1.5px solid #666688;
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #1d4ed8;
 }
 
 .btn-pass:hover:not(:disabled) {
-  background: #555578;
+  background: #1d4ed8;
+  box-shadow: 0 2px 6px rgba(37,99,235,0.35);
 }
 
 .btn-pass:disabled {
-  background: #333344;
-  color: #666;
-  border-color: #444455;
+  background: #bfdbfe;
+  color: #93c5fd;
+  border-color: #bfdbfe;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn-undo {
-  background: #3a3a50;
-  color: #bbb;
-  border: 1.5px solid #555570;
+  background: #ffffff;
+  color: #374151;
+  border-color: #d1d5db;
 }
 
 .btn-undo:hover:not(:disabled) {
-  background: #4a4a65;
+  background: #f9fafb;
+  border-color: #9ca3af;
 }
 
 .btn-undo:disabled {
-  background: #2a2a3a;
-  color: #555;
-  border-color: #3a3a4a;
+  background: #f9fafb;
+  color: #d1d5db;
+  border-color: #e5e7eb;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 .btn-reset {
-  background: #e8e0d0;
-  color: #1e1e2e;
+  background: #111827;
+  color: #f9fafb;
+  border-color: #111827;
 }
 
 .btn-reset:hover {
-  background: #fff;
+  background: #1f2937;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
+
+/* ── Pass confirm ─────────────────────────────────────────────────────────── */
 
 .pass-confirm {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 10px;
-  padding: 10px 16px;
-  background: rgba(255, 200, 80, 0.08);
-  border: 1px solid rgba(255, 200, 80, 0.2);
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fffbeb;
+  border: 1px solid #fcd34d;
   border-radius: 10px;
-  flex-wrap: wrap;
-  justify-content: center;
 }
 
 .pass-confirm-msg {
-  font-size: 0.82rem;
-  color: #c8a855;
+  font-size: 0.75rem;
+  color: #92400e;
   font-weight: 600;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
+  line-height: 1.4;
 }
 
 .btn-pass-yes {
-  padding: 6px 18px;
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   border: none;
-  background: #c8a855;
-  color: #1e1e2e;
+  background: #d97706;
+  color: #ffffff;
   transition: background 0.15s;
 }
 
-.btn-pass-yes:hover {
-  background: #e0c070;
-}
+.btn-pass-yes:hover { background: #b45309; }
 
 .btn-pass-cancel {
-  padding: 6px 18px;
+  padding: 8px 16px;
   border-radius: 6px;
-  font-size: 0.82rem;
+  font-size: 0.80rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
   background: transparent;
-  color: #666;
-  border: 1.5px solid #444;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
   transition: border-color 0.15s, color 0.15s;
 }
 
-.btn-pass-cancel:hover {
-  border-color: #888;
-  color: #aaa;
-}
+.btn-pass-cancel:hover { border-color: #9ca3af; color: #374151; }
 
-.legend {
-  display: flex;
-  gap: 24px;
-  margin-top: 20px;
-}
+/* ── Legend ───────────────────────────────────────────────────────────────── */
 
 .legend-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.8rem;
-  color: #888;
+  gap: 7px;
+  font-size: 0.67rem;
+  color: #6b7280;
   font-weight: 500;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
 }
 
 .legend-stone {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  box-shadow: 1px 2px 4px rgba(0,0,0,0.5);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  flex-shrink: 0;
 }
 
-.blue-stone {
-  background: radial-gradient(circle at 35% 30%, #7ec3f5, #1a5fa8 70%);
-}
+.blue-stone   { background: radial-gradient(circle at 35% 30%, #7ec3f5, #1d4ed8 70%); }
+.red-stone    { background: radial-gradient(circle at 35% 30%, #fca5a5, #b91c1c 70%); }
+.neutral-stone { background: radial-gradient(circle at 35% 30%, #e5e7eb, #6b7280 70%); }
 
-.orange-stone {
-  background: radial-gradient(circle at 35% 30%, #ffcc77, #d96a00 70%);
-}
+/* ── Small screens: tighten sizes only ───────────────────────────────────── */
 
-.neutral-stone {
-  background: radial-gradient(circle at 35% 30%, #e8e8e8, #888 70%);
+@media (max-width: 480px) {
+  .app { padding: 8px 10px 16px; gap: 8px; }
+
+  .title { font-size: 1.3rem; letter-spacing: 0.05em; }
+  .online-badge { font-size: 0.62rem; padding: 2px 8px; }
+
+  .score-card { padding: 5px 10px; min-width: 76px; border-radius: 8px; }
+  .score-big  { font-size: 1.1rem; }
+  .score-player, .score-lbl { font-size: 0.56rem; }
+  .status { font-size: 0.70rem; padding: 4px 10px; white-space: normal; }
+
+  .canvas-container {
+    --canvas-size: min(calc(100vw - 20px), 380px);
+  }
 }

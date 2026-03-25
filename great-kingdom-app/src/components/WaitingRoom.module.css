@@ -5,8 +5,9 @@
   justify-content: center;
   min-height: 100svh;
   padding: 32px 20px;
-  background: #1e1e2e;
+  background: #f8f9fa;
   font-family: system-ui, sans-serif;
+  color: #1a1a2e;
 }
 
 .title {
@@ -14,14 +15,13 @@
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #e8e0d0;
+  color: #1a1a2e;
   margin: 0 0 32px;
-  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
 }
 
 .label {
   font-size: 0.8rem;
-  color: #666;
+  color: #9ca3af;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin: 0 0 16px;
@@ -31,18 +31,19 @@
   display: flex;
   align-items: center;
   gap: 14px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
   border-radius: 14px;
   padding: 16px 28px;
   margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
 .code {
   font-size: 2.6rem;
   font-weight: 800;
   letter-spacing: 0.25em;
-  color: #e8e0d0;
+  color: #1a1a2e;
   font-variant-numeric: tabular-nums;
 }
 
@@ -54,21 +55,23 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  border: 1.5px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.06);
-  color: #aaa;
-  transition: background 0.15s, color 0.15s;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #6b7280;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
   flex-shrink: 0;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
 .copyBtn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  color: #e8e0d0;
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
 }
 
 .hint {
   font-size: 0.88rem;
-  color: #555;
+  color: #6b7280;
   margin: 0 0 32px;
   display: flex;
   align-items: center;
@@ -81,7 +84,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #7ec3f5;
+  background: #2563eb;
   animation: pulse 1.4s ease-in-out infinite;
 }
 
@@ -92,12 +95,12 @@
 
 .error {
   font-size: 0.82rem;
-  color: #f08080;
+  color: #b91c1c;
   text-align: center;
   margin: 0 0 16px;
   padding: 8px 16px;
-  background: rgba(240, 128, 128, 0.08);
-  border: 1px solid rgba(240, 128, 128, 0.2);
+  background: #fff0f0;
+  border: 1px solid #fca5a5;
   border-radius: 8px;
 }
 
@@ -109,13 +112,14 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  background: transparent;
-  color: #666;
-  border: 1.5px solid #333;
-  transition: border-color 0.15s, color 0.15s;
+  background: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  transition: background 0.15s, border-color 0.15s;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
 .backBtn:hover {
-  border-color: #666;
-  color: #aaa;
+  background: #f3f4f6;
+  border-color: #9ca3af;
 }

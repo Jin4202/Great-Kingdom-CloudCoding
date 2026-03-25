@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Board from '../Board'
+import GameCanvas from './3d/GameCanvas'
 import RulesOverlay from '../RulesOverlay'
 import WinOverlay from '../WinOverlay'
 import MoveLog from '../MoveLog'
 import { useRoom } from '../hooks/useRoom'
 import { detectMoveLogEntry } from '../moveLogDetect'
-import { isSuicideMove, BLUE, ORANGE, EMPTY, BOARD_SIZE, MAX_PIECES } from '../gameLogic'
+import { isSuicideMove, BLUE, RED, EMPTY, BOARD_SIZE, MAX_PIECES } from '../gameLogic'
 import '../App.css'
 
 export default function OnlineGame() {
@@ -59,7 +59,7 @@ export default function OnlineGame() {
   function hasAvailableMoves() {
     if (!gameState) return false
     const { board, territory, turn } = gameState
-    const opponent = turn === BLUE ? ORANGE : BLUE
+    const opponent = turn === BLUE ? RED : BLUE
     for (let r = 0; r < BOARD_SIZE; r++) {
       for (let c = 0; c < BOARD_SIZE; c++) {
         if (board[r][c] !== EMPTY) continue
@@ -112,17 +112,17 @@ export default function OnlineGame() {
 
   // ── Game render ───────────────────────────────────────────────────────────
 
-  const { turn, gameOver, winner, winReason, blueTerritory, orangeTerritory, board, territory, bluePieces, orangePieces } = gameState
+  const { turn, gameOver, winner, winReason, blueTerritory, redTerritory, board, territory, bluePieces, redPieces } = gameState
 
-  const myColorLabel = myColor === BLUE ? 'Blue' : 'Orange'
-  const myColorHex   = myColor === BLUE ? '#7ec3f5' : '#ffcc77'
-  const turnColor    = turn   === BLUE ? '#7ec3f5' : '#ffcc77'
+  const myColorLabel = myColor === BLUE ? 'Blue' : 'Red'
+  const myColorHex   = myColor === BLUE ? '#7ec3f5' : '#ef4444'
+  const turnColor    = turn === BLUE ? '#7ec3f5' : '#ef4444'
 
   const suicideCells = Array.from({ length: BOARD_SIZE }, (_, r) =>
     Array.from({ length: BOARD_SIZE }, (_, c) => {
       if (gameOver || !isMyTurn) return false
       if (board[r][c] !== EMPTY) return false
-      const opponent = turn === BLUE ? ORANGE : BLUE
+      const opponent = turn === BLUE ? RED : BLUE
       if (territory[r][c] === opponent) return false
       return isSuicideMove(board, r, c, turn)
     })
@@ -130,8 +130,8 @@ export default function OnlineGame() {
 
   function renderStatus() {
     if (gameOver) {
-      const winnerLabel = winner === BLUE ? 'Blue' : 'Orange'
-      const winnerColor = winner === BLUE ? '#7ec3f5' : '#ffcc77'
+      const winnerLabel = winner === BLUE ? 'Blue' : 'Red'
+      const winnerColor = winner === BLUE ? '#7ec3f5' : '#ef4444'
       if (winReason === 'capture') {
         return (
           <span className="status game-over" style={{ color: winnerColor }}>
@@ -141,7 +141,7 @@ export default function OnlineGame() {
       }
       return (
         <span className="status game-over" style={{ color: winnerColor }}>
-          {winnerLabel} wins by territory ({blueTerritory} vs {orangeTerritory}, komi −3)
+          {winnerLabel} wins by territory ({blueTerritory} vs {redTerritory}, komi −3)
         </span>
       )
     }
@@ -163,7 +163,7 @@ export default function OnlineGame() {
           winner={gameState.winner}
           winReason={gameState.winReason}
           blueTerritory={gameState.blueTerritory}
-          orangeTerritory={gameState.orangeTerritory}
+          redTerritory={gameState.redTerritory}
           onNewGame={() => navigate('/')}
           onReview={() => setShowWin(false)}
         />
@@ -175,9 +175,7 @@ export default function OnlineGame() {
         </div>
       )}
       {moveError && !connectionLost && (
-        <div className="banner banner-error">
-          {moveError}
-        </div>
+        <div className="banner banner-error">{moveError}</div>
       )}
       {!connectionLost && opponentEverOnline && !opponentOnline && !gameOver && (
         <div className="banner banner-warn">
@@ -189,87 +187,83 @@ export default function OnlineGame() {
         <button className="btn-back" onClick={() => navigate('/')} aria-label="Back to lobby">←</button>
         <h1 className="title">Great Kingdom</h1>
         <button className="btn-rules" onClick={() => setShowRules(true)} aria-label="Show rules">?</button>
-      </div>
-
-      <div className="online-badge">
-        You are&nbsp;<span style={{ color: myColorHex, fontWeight: 800 }}>{myColorLabel}</span>
-      </div>
-
-      <div className="territory-bar">
-        <div className="territory-item blue-terr">
-          <span className="terr-label">Blue</span>
-          <span className="terr-count">{blueTerritory}</span>
-        </div>
-        <div className="territory-divider">territory</div>
-        <div className="territory-item orange-terr">
-          <span className="terr-label">Orange</span>
-          <span className="terr-count">{orangeTerritory}</span>
+        <div className="online-badge">
+          You are&nbsp;<span style={{ color: myColorHex, fontWeight: 800 }}>{myColorLabel}</span>
         </div>
       </div>
 
-      <div className="pieces-bar">
-        <div className="pieces-item blue-pieces">
-          <span className="pieces-label">Blue</span>
-          <span className="pieces-remaining">{MAX_PIECES - bluePieces}</span>
-          <span className="pieces-unit">left</span>
+      <div className="scoreboard">
+        <div className="score-card score-blue">
+          <span className="score-player">Blue</span>
+          <div className="score-nums">
+            <span className="score-big">{blueTerritory}</span>
+            <span className="score-lbl">terr</span>
+            <span className="score-sep">·</span>
+            <span className="score-big">{MAX_PIECES - bluePieces}</span>
+            <span className="score-lbl">left</span>
+          </div>
         </div>
-        <div className="pieces-divider">pieces</div>
-        <div className="pieces-item orange-pieces">
-          <span className="pieces-label">Orange</span>
-          <span className="pieces-remaining">{MAX_PIECES - orangePieces}</span>
-          <span className="pieces-unit">left</span>
+        <div className="score-status">{renderStatus()}</div>
+        <div className="score-card score-red">
+          <span className="score-player">Red</span>
+          <div className="score-nums">
+            <span className="score-big">{MAX_PIECES - redPieces}</span>
+            <span className="score-lbl">left</span>
+            <span className="score-sep">·</span>
+            <span className="score-big">{redTerritory}</span>
+            <span className="score-lbl">terr</span>
+          </div>
         </div>
       </div>
-
-      <div className="status-bar">{renderStatus()}</div>
 
       <div className="board-area">
-        <Board
+        <GameCanvas
           board={board}
           territory={territory}
           turn={turn}
           onCellClick={handleCellClick}
           lastMove={gameState.lastMove}
           gameOver={gameOver}
+          winReason={winReason}
           suicideCells={suicideCells}
           isOpponentTurn={!isMyTurn && !gameOver}
         />
-        <MoveLog entries={moveLog} />
-      </div>
-
-      <div className="controls">
-        <button
-          className="btn btn-pass"
-          onClick={handlePass}
-          disabled={!isMyTurn || gameOver}
-        >
-          Pass
-        </button>
-        <button className="btn btn-reset" onClick={() => navigate('/')}>
-          Leave
-        </button>
-      </div>
-
-      {confirmingPass && (
-        <div className="pass-confirm">
-          <span className="pass-confirm-msg">You still have moves. Pass anyway?</span>
-          <button className="btn-pass-yes" onClick={commitPass}>Yes, Pass</button>
-          <button className="btn-pass-cancel" onClick={() => setConfirmingPass(false)}>Cancel</button>
-        </div>
-      )}
-
-      <div className="legend">
-        <div className="legend-item">
-          <div className="legend-stone blue-stone" />
-          <span>Blue (First, needs +3)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-stone orange-stone" />
-          <span>Orange (Second)</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-stone neutral-stone" />
-          <span>Neutral</span>
+        <div className="sidebar">
+          <MoveLog entries={moveLog} />
+          {confirmingPass ? (
+            <div className="pass-confirm">
+              <span className="pass-confirm-msg">You still have moves. Pass anyway?</span>
+              <button className="btn-pass-yes" onClick={commitPass}>Yes, Pass</button>
+              <button className="btn-pass-cancel" onClick={() => setConfirmingPass(false)}>Cancel</button>
+            </div>
+          ) : (
+            <div className="controls">
+              <button
+                className="btn btn-pass"
+                onClick={handlePass}
+                disabled={!isMyTurn || gameOver}
+              >
+                Pass
+              </button>
+              <button className="btn btn-reset" onClick={() => navigate('/')}>
+                Leave
+              </button>
+            </div>
+          )}
+          <div className="legend">
+            <div className="legend-item">
+              <div className="legend-stone blue-stone" />
+              <span>Blue (First, +3)</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-stone red-stone" />
+              <span>Red (Second)</span>
+            </div>
+            <div className="legend-item">
+              <div className="legend-stone neutral-stone" />
+              <span>Neutral</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

@@ -19,8 +19,8 @@ export default function MoveLog({ entries }) {
         {entries.map((entry, i) => (
           <div key={i} className={styles.entry}>
             <span className={styles.num}>{i + 1}</span>
-            <span className={entry.player === BLUE ? styles.blue : styles.orange}>
-              {entry.player === BLUE ? 'Blue' : 'Orange'}
+            <span className={entry.player === BLUE ? styles.blue : styles.red}>
+              {entry.player === BLUE ? 'Blue' : 'Red'}
             </span>
             <span className={styles.coord}>
               {entry.type === 'pass' ? 'Pass' : entry.coord}

@@ -1,4 +1,4 @@
-import { EMPTY, BLUE, ORANGE, NEUTRAL, BOARD_SIZE } from './gameLogic';
+import { EMPTY, BLUE, RED, NEUTRAL, BOARD_SIZE } from './gameLogic';
 import styles from './Board.module.css';
 
 export default function Board({ board, territory, turn, onCellClick, lastMove, gameOver, suicideCells, isOpponentTurn = false }) {
@@ -33,7 +33,7 @@ export default function Board({ board, territory, turn, onCellClick, lastMove, g
               const terrOwner = territory?.[r]?.[c] ?? 0;
 
               // A cell is blocked for the current player if it's opponent's confirmed territory
-              const opponent = turn === BLUE ? ORANGE : BLUE;
+              const opponent = turn === BLUE ? RED : BLUE;
               const isBlocked = isEmpty && terrOwner === opponent;
 
               const isSuicide = suicideCells?.[r]?.[c] ?? false;
@@ -48,11 +48,11 @@ export default function Board({ board, territory, turn, onCellClick, lastMove, g
                     styles.cell,
                     isEmpty ? styles.empty : '',
                     terrOwner === BLUE ? styles.blueTerritory : '',
-                    terrOwner === ORANGE ? styles.orangeTerritory : '',
+                    terrOwner === RED ? styles.redTerritory : '',
                     isBlocked ? styles.blocked : '',
                     isSuicide ? styles.suicide : '',
                     canPlace && turn === BLUE ? styles.hoverBlue : '',
-                    canPlace && turn === ORANGE ? styles.hoverOrange : '',
+                    canPlace && turn === RED ? styles.hoverRed : '',
                   ].join(' ')}
                   onClick={() => onCellClick(r, c)}
                   disabled={!canPlace}
@@ -63,7 +63,7 @@ export default function Board({ board, territory, turn, onCellClick, lastMove, g
                       className={[
                         styles.piece,
                         cell === BLUE ? styles.bluePiece : '',
-                        cell === ORANGE ? styles.orangePiece : '',
+                        cell === RED ? styles.redPiece : '',
                         cell === NEUTRAL ? styles.neutralPiece : '',
                         isLast ? styles.lastMove : '',
                         isLast ? styles.pieceNew : '',

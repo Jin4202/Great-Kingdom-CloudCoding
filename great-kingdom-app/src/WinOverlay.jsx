@@ -1,9 +1,9 @@
 import styles from './WinOverlay.module.css';
 import { BLUE } from './gameLogic';
 
-export default function WinOverlay({ winner, winReason, blueTerritory, orangeTerritory, onNewGame, onReview }) {
+export default function WinOverlay({ winner, winReason, blueTerritory, redTerritory, onNewGame, onReview }) {
   const isBlue = winner === BLUE;
-  const winnerLabel = isBlue ? 'Blue' : 'Orange';
+  const winnerLabel = isBlue ? 'Blue' : 'Red';
   const winnerColor = isBlue ? '#7ec3f5' : '#ffcc77';
 
   return (
@@ -22,7 +22,7 @@ export default function WinOverlay({ winner, winReason, blueTerritory, orangeTer
             <div className={styles.scoreRow}>
               <span className={styles.scoreBlue}>{blueTerritory}</span>
               <span className={styles.scoreDivider}>vs</span>
-              <span className={styles.scoreOrange}>{orangeTerritory}</span>
+              <span className={styles.scoreRed}>{redTerritory}</span>
             </div>
             <p className={styles.komi}>Blue needs +3 (komi) to win</p>
           </div>

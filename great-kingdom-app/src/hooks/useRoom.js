@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase, ensureAuth } from '../lib/supabase'
-import { createInitialState, BLUE, ORANGE } from '../gameLogic'
+import { createInitialState, BLUE, RED } from '../gameLogic'
 import { retryFetch } from '../lib/retryFetch'
 
 // ── Serialization ─────────────────────────────────────────────────────────────
@@ -13,9 +13,9 @@ export function deserializeState(row) {
     turn: row.turn,
     passCount: row.pass_count,
     bluePieces: row.blue_pieces,
-    orangePieces: row.orange_pieces,
+    redPieces: row.orange_pieces,
     blueTerritory: row.blue_territory,
-    orangeTerritory: row.orange_territory,
+    redTerritory: row.orange_territory,
     gameOver: row.game_over,
     winner: row.winner ?? null,
     winReason: row.win_reason ?? null,
@@ -30,9 +30,9 @@ function serializeState(state) {
     turn: state.turn,
     pass_count: state.passCount,
     blue_pieces: state.bluePieces,
-    orange_pieces: state.orangePieces,
+    orange_pieces: state.redPieces,
     blue_territory: state.blueTerritory,
-    orange_territory: state.orangeTerritory,
+    orange_territory: state.redTerritory,
     game_over: state.gameOver,
     winner: state.winner ?? null,
     win_reason: state.winReason ?? null,
@@ -78,7 +78,7 @@ export function useRoom() {
       if (cancelled) return
       if (roomErr) throw new Error('Room not found.')
 
-      const color = room.blue_user === user.id ? BLUE : ORANGE
+      const color = room.blue_user === user.id ? BLUE : RED
       const opponentId = room.blue_user === user.id ? room.orange_user : room.blue_user
 
       roomIdRef.current = room.id
